@@ -59,9 +59,6 @@ class Hexagon:
         pygame.draw.polygon(screen, (0, 0, 0), self.vertices, 1)
 
 
-pygame.init()
-
-
 class HexMap():
     def __init__(self, rows = 10, cols = 10):
         self.rows = rows
@@ -96,16 +93,14 @@ class HexMap():
                 hexagon = Hexagon(center_x, center_y, self.hex_size)
                 self.hex_grid[i].append(hexagon)
 
-    def draw(self):
-        # Draw the hexagonal grid
-        for i in range(self.rows):
-            for j in range(self.cols):
-                hexagon = self.hex_grid[i][j]
-                hexagon.draw(self.screen, self.map_tiles)
+    def draw_tile(self, tile):
+        # Draw a tile
+        hexagon = self.hex_grid[tile.x][tile.y]
+        hexagon.draw(self.screen, self.map_tiles)
 
 
 class Tile:
-    def __init__(self, x, y):
+    def __init__(self, x, y, hexMap):
         self.x = x
         self.y = y
         self.qup = None
@@ -119,10 +114,16 @@ class Tile:
 
 class Board:
     def __init__(self, rows=10, cols=10):
-        self.tiles = [[Tile(x, y) for y in range(cols)] for x in range(cols)]
+        # Maps and draws hexagons on a lattice
+        self.hexMap = HexMap(rows, cols)
 
-        for x in range(cols):
-            for y in range(rows):
+        self.rows = rows
+        self.cols = cols
+
+        self.tiles = [[Tile(x, y, self.hexMap) for y in range(cols)] for x in range(cols)]
+
+        for x in range(self.cols):
+            for y in range(self.rows):
                 tile = self.tiles[x][y]
                 if x % 2 == 1:
                     tile.qup = self.tiles[(x+1)%cols][y]
@@ -141,11 +142,14 @@ class Board:
 
                 tile.neighbors = [tile.qup, tile.sup, tile.rup, tile.qdn, tile.sdn, tile.rdn]
 
-        self.hexMap = HexMap(rows, cols)
-
     def draw(self):
-        self.hexMap.draw()
+        for x in range(self.cols):
+            for y in range(self.rows):
+                tile = self.tiles[x][y]
+                self.hexMap.draw_tile(tile)
 
+
+pygame.init()
 
 board = Board(10, 10)
 board.draw()
