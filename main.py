@@ -75,7 +75,9 @@ class HexMap():
 
         # Initialize screen and fill with white
         self.screen = pygame.display.set_mode((640, 480))
-        self.screen.fill((255, 255, 255))
+        self.surface = pygame.Surface((1280, 960))
+        self.surface.fill((255, 255, 255))
+        self.viewport = pygame.Rect((0, 0), (640, 480))
 
         self.map_tiles = load_tileset('assets/elite_command_art_terrain/tileset.png')[0]
 
@@ -93,10 +95,20 @@ class HexMap():
                 hexagon = Hexagon(center_x, center_y, self.hex_size)
                 self.hex_grid[i].append(hexagon)
 
+    def scroll_right(self, step):
+        self.viewport.x -= step
+
+    def scroll_up(self, step):
+        self.viewport.y -= step
+
+    def update_display(self):
+        self.screen.blit(self.surface, (0, 0), self.viewport)
+        pygame.display.update()
+
     def draw_tile(self, tile):
         # Draw a tile
         hexagon = self.hex_grid[tile.x][tile.y]
-        hexagon.draw(self.screen, self.map_tiles)
+        hexagon.draw(self.surface, self.map_tiles)
 
 
 class Tile:
@@ -154,6 +166,9 @@ pygame.init()
 board = Board(10, 10)
 board.draw()
 
+hexMap = board.hexMap
+hexMap.screen.blit(hexMap.surface, (0, 0), hexMap.viewport)
+
 clock = pygame.time.Clock()
 running = True
 while running:
@@ -161,8 +176,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     # Update game state here
+    hexMap.scroll_right(-1)
+    hexMap.scroll_up(-1)
     # Render game screen here
-    pygame.display.update()
+    hexMap.update_display()
     clock.tick(60)
 
 
