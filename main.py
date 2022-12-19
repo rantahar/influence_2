@@ -175,9 +175,23 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    keys = pygame.key.get_pressed()
+
+    # scrolling:
+    scroll_right = 0
+    scroll_up = 0
+    if keys[pygame.K_LEFT]:
+        scroll_right += 5
+    if keys[pygame.K_RIGHT]:
+        scroll_right -= 5
+    if keys[pygame.K_UP]:
+        scroll_up += 5
+    if keys[pygame.K_DOWN]:
+        scroll_up -= 5
     # Update game state here
-    hexMap.scroll_right(-1)
-    hexMap.scroll_up(-1)
+    hexMap.scroll_right(scroll_right)
+    hexMap.scroll_up(scroll_up)
     # Render game screen here
     hexMap.update_display()
     clock.tick(60)
