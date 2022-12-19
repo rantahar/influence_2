@@ -12,8 +12,6 @@ def load_tileset(filename):
     rows = tileset_height // tile_height
     columns = tileset_width // tile_width
 
-    print(rows, columns)
-
     # Create a 2D list to store the tiles
     tiles = []
     for i in range(rows):
@@ -33,9 +31,6 @@ def load_tileset(filename):
     return tiles
 
 
-map_tiles = load_tileset('assets/elite_command_art_terrain/tileset.png')[0]
-
-
 class Hexagon:
     def __init__(self, center_x, center_y, size):
         self.center_x = center_x
@@ -43,7 +38,6 @@ class Hexagon:
         self.size = size
         self.width = math.sqrt(3) * size
         self.height = 2 * size
-        print(self.width, self.height)
 
         # Calculate the vertices of the hexagon
         self.vertices = []
@@ -53,7 +47,7 @@ class Hexagon:
             y = center_y + size * math.sin(angle)
             self.vertices.append((x, y))
 
-    def draw(self, screen, debug=False):
+    def draw(self, screen, map_tiles, debug=False):
         # Draw the hexagon sprite on the screen
         tile = map_tiles[0]
         # Scale and draw the tile image. Adjust the size a bit to remove
@@ -66,45 +60,95 @@ class Hexagon:
 
 
 pygame.init()
-screen = pygame.display.set_mode((640, 480))
-screen.fill((255, 255, 255))
 
 
-# Set the dimensions of the hexagons
-hex_size = 50
-hex_width = math.sqrt(3) * hex_size
-hex_height = 2 * hex_size
+class HexMap():
+    def __init__(self, rows = 10, cols = 10):
+        self.rows = rows
+        self.cols = cols
 
-# Set the starting position for the grid
-start_x = 50
-start_y = 50
+        # Set the dimensions of the hexagons
+        self.hex_size = 50
+        self.hex_width = math.sqrt(3) * self.hex_size
+        self.hex_height = 2 * self.hex_size
 
-# Set the number of rows and columns in the grid
-rows = 10
-columns = 10
+        # Set the starting position for the grid
+        self.start_x = self.hex_size
+        self.start_y = self.hex_size
+
+        # Initialize screen and fill with white
+        self.screen = pygame.display.set_mode((640, 480))
+        self.screen.fill((255, 255, 255))
+
+        self.map_tiles = load_tileset('assets/elite_command_art_terrain/tileset.png')[0]
+
+        # Create a 2D list to store the hexagon objects
+        self.hex_grid = []
+        for i in range(self.rows):
+            self.hex_grid.append([])
+            for j in range(self.cols):
+                # Calculate the center position of the hexagon
+                center_x = self.start_x + j * self.hex_width
+                center_y = self.start_y + i * (self.hex_height + self.hex_size)//2
+                if i % 2 == 1:
+                    center_x += self.hex_width//2
+                # Create a hexagon object and add it to the grid
+                hexagon = Hexagon(center_x, center_y, self.hex_size)
+                self.hex_grid[i].append(hexagon)
+
+    def draw(self):
+        # Draw the hexagonal grid
+        for i in range(self.rows):
+            for j in range(self.cols):
+                hexagon = self.hex_grid[i][j]
+                hexagon.draw(self.screen, self.map_tiles)
 
 
-# Create a 2D list to store the hexagon objects
-hex_grid = []
-for i in range(rows):
-    hex_grid.append([])
-    for j in range(columns):
-        # Calculate the center position of the hexagon
-        center_x = start_x + j * hex_width
-        center_y = start_y + i * (hex_height + hex_size)//2
-        if i % 2 == 1:
-            center_x += hex_width//2
-        # Create a hexagon object and add it to the grid
-        hexagon = Hexagon(center_x, center_y, hex_size)
-        hex_grid[i].append(hexagon)
+class Tile:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.qup = None
+        self.rup = None
+        self.sup = None
+        self.qdn = None
+        self.rdn = None
+        self.sdn = None
+        self.neighbors = None
 
 
-# Draw the hexagonal grid
-for i in range(rows):
-    for j in range(columns):
-        hexagon = hex_grid[i][j]
-        hexagon.draw(screen, i==0 and j==0)
+class Board:
+    def __init__(self, rows=10, cols=10):
+        self.tiles = [[Tile(x, y) for y in range(cols)] for x in range(cols)]
 
+        for x in range(cols):
+            for y in range(rows):
+                tile = self.tiles[x][y]
+                if x % 2 == 1:
+                    tile.qup = self.tiles[(x+1)%cols][y]
+                    tile.sup = self.tiles[x][(y+1)%rows]
+                    tile.rup = self.tiles[(x+cols-1)%cols][(y+rows-1)%rows]
+                    tile.qdn = self.tiles[(x+cols-1)%cols][y]
+                    tile.sdn = self.tiles[x][(y+rows-1)%rows]
+                    tile.rdn = self.tiles[(x+1)%cols][(y+1)%rows]
+                else:
+                    tile.qup = self.tiles[(x+1)%cols][y]
+                    tile.sup = self.tiles[(x+cols-1)%cols][(y+1)%rows]
+                    tile.rup = self.tiles[x][(y+rows-1)%rows]
+                    tile.qdn = self.tiles[(x+cols-1)%rows][y]
+                    tile.sdn = self.tiles[(x+1)%rows][(y+rows-1)%rows]
+                    tile.rdn = self.tiles[x][(y+1)%rows]
+
+                tile.neighbors = [tile.qup, tile.sup, tile.rup, tile.qdn, tile.sdn, tile.rdn]
+
+        self.hexMap = HexMap(rows, cols)
+
+    def draw(self):
+        self.hexMap.draw()
+
+
+board = Board(10, 10)
+board.draw()
 
 clock = pygame.time.Clock()
 running = True
@@ -114,7 +158,6 @@ while running:
             running = False
     # Update game state here
     # Render game screen here
-
     pygame.display.update()
     clock.tick(60)
 
