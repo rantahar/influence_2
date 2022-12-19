@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 
 def load_tileset(filename):
@@ -47,9 +48,9 @@ class Hexagon:
             y = center_y + size * math.sin(angle)
             self.vertices.append((x, y))
 
-    def draw(self, screen, map_tiles, debug=False):
+    def draw(self, screen, tile, debug=False):
         # Draw the hexagon sprite on the screen
-        tile = map_tiles[0]
+
         # Scale and draw the tile image. Adjust the size a bit to remove
         # floating point caps
         tile = pygame.transform.scale(tile, (self.width+2, self.height+2))
@@ -82,6 +83,10 @@ class HexMap():
         self.viewport = pygame.Rect((320, 240), (640, 480))
 
         self.map_tiles = load_tileset('assets/elite_command_art_terrain/tileset.png')[0]
+        self.land_sprites = {
+            'forest': self.map_tiles[3],
+            'meadow': self.map_tiles[0]
+        }
 
         # Create a 2D list to store the hexagon objects
         self.hex_grid = []
@@ -110,7 +115,8 @@ class HexMap():
     def draw_tile(self, tile):
         # Draw a tile
         hexagon = self.hex_grid[tile.x][tile.y]
-        hexagon.draw(self.surface, self.map_tiles)
+        tile = self.land_sprites[tile.land_type]
+        hexagon.draw(self.surface, tile)
 
 
 class Tile:
@@ -124,6 +130,8 @@ class Tile:
         self.rdn = None
         self.sdn = None
         self.neighbors = None
+
+        self.land_type = random.choice(['forest', 'meadow'])
 
 
 class Board:
