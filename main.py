@@ -1,6 +1,7 @@
 import pygame
 import math
 import random
+import pieces
 
 
 def load_tileset(filename):
@@ -60,7 +61,7 @@ class Hexagon:
         pygame.draw.polygon(screen, (0, 0, 0), self.vertices, 1)
 
 
-class HexMap():
+class TileMap():
     def __init__(self, rows = 10, cols = 10):
         self.rows = rows
         self.cols = cols
@@ -120,7 +121,7 @@ class HexMap():
 
 
 class Tile:
-    def __init__(self, x, y, hexMap):
+    def __init__(self, x, y, tileMap):
         self.x = x
         self.y = y
         self.qup = None
@@ -133,16 +134,21 @@ class Tile:
 
         self.land_type = random.choice(['forest', 'meadow'])
 
+        self.city = None
+
+    def new_city(self):
+        self.city = City()
+
 
 class Board:
     def __init__(self, rows=10, cols=10):
         # Maps and draws hexagons on a lattice
-        self.hexMap = HexMap(rows, cols)
+        self.tileMap = TileMap(rows, cols)
 
         self.rows = rows
         self.cols = cols
 
-        self.tiles = [[Tile(x, y, self.hexMap) for y in range(cols)] for x in range(cols)]
+        self.tiles = [[Tile(x, y, self.tileMap) for y in range(cols)] for x in range(cols)]
 
         for x in range(self.cols):
             for y in range(self.rows):
@@ -168,7 +174,10 @@ class Board:
         for x in range(self.cols):
             for y in range(self.rows):
                 tile = self.tiles[x][y]
-                self.hexMap.draw_tile(tile)
+                self.tileMap.draw_tile(tile)
+
+    def new_city(self, x, y):
+        self.tiles[x][y].new_city()
 
 
 pygame.init()
@@ -176,8 +185,8 @@ pygame.init()
 board = Board(10, 10)
 board.draw()
 
-hexMap = board.hexMap
-hexMap.screen.blit(hexMap.surface, (0, 0), hexMap.viewport)
+tileMap = board.tileMap
+tileMap.screen.blit(tileMap.surface, (0, 0), tileMap.viewport)
 
 clock = pygame.time.Clock()
 running = True
@@ -200,10 +209,10 @@ while running:
     if keys[pygame.K_DOWN]:
         scroll_up -= 5
     # Update game state here
-    hexMap.scroll_right(scroll_right)
-    hexMap.scroll_up(scroll_up)
+    tileMap.scroll_right(scroll_right)
+    tileMap.scroll_up(scroll_up)
     # Render game screen here
-    hexMap.update_display()
+    tileMap.update_display()
     clock.tick(60)
 
 
