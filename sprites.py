@@ -29,6 +29,16 @@ def load_tileset(filename, tile_height, tile_width):
 
 
 piece_sprites = load_tileset("assets/Toens_Medieval_Strategy_Sprite_Pack/tileset.png", 16, 16)
-map_sprites = load_tileset('assets/elite_command_art_terrain/tileset.png', 34, 32)[0]
+land_sprites = load_tileset('assets/elite_command_art_terrain/tileset.png', 34, 32)[0]
+
+map_sprites = {
+    'forest': land_sprites[3],
+    'meadow': land_sprites[0]
+}
+
+piece_sprites = {
+    'unknown': piece_sprites[5][6],
+    "city1": piece_sprites[1][0],
+}
 
 

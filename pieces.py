@@ -1,6 +1,3 @@
-from sprites import piece_sprites as sprites
-
-
 class GamePiece():
     def __init__(self, tile):
         self.tile = tile
@@ -11,8 +8,8 @@ class GamePiece():
     def get_tile(self):
         return self.tile
 
-    def get_sprite(self):
-        return sprites[5][6]
+    def get_type(self):
+        return "unknown"
 
 
 class City(GamePiece):
@@ -28,8 +25,8 @@ class City(GamePiece):
     def change_owner(self):
         self.owner = self.tile.owner
 
-    def get_sprite(self):
-        return sprites[1][0]
+    def get_type(self):
+        return "city"+str(self.level)
 
     def food_production(self):
         food = 0

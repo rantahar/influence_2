@@ -2,7 +2,7 @@ import pygame
 import math
 import random
 import pieces
-from sprites import map_sprites
+from sprites import map_sprites, piece_sprites
 
 
 class Hexagon:
@@ -33,7 +33,7 @@ class Hexagon:
         pygame.draw.polygon(screen, (0, 0, 0), self.vertices, 1)
 
     def draw_piece(self, screen, piece):
-        sprite = piece.get_sprite()
+        sprite = piece_sprites[piece.get_type()]
         size = self.width*3//5
         sprite = pygame.transform.scale(sprite, (size, size))
         screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
@@ -56,16 +56,9 @@ class TileMap():
         self.start_y = self.hex_size + 240
 
         # Initialize screen and fill with white
-        self.screen = pygame.display.set_mode((640, 480))
         self.surface = pygame.Surface((self.board_width + 1280, self.board_height + 480))
         self.surface.fill((255, 255, 255))
         self.viewport = pygame.Rect((320, 240), (640, 480))
-
-        self.map_tiles = map_sprites
-        self.land_sprites = {
-            'forest': self.map_tiles[3],
-            'meadow': self.map_tiles[0]
-        }
 
         # Create a 2D list to store the hexagon objects
         self.hex_grid = []
@@ -87,14 +80,10 @@ class TileMap():
     def scroll_up(self, step):
         self.viewport.y -= step
 
-    def update_display(self):
-        self.screen.blit(self.surface, (0, 0), self.viewport)
-        pygame.display.update()
-
     def draw_tile(self, tile):
         # Draw a tile
         hexagon = self.hex_grid[tile.x][tile.y]
-        sprite = self.land_sprites[tile.land_type]
+        sprite = map_sprites[tile.land_type]
         hexagon.draw(self.surface, sprite)
 
         for piece in tile.pieces:
@@ -163,6 +152,7 @@ class Board:
 
 
 pygame.init()
+screen = pygame.display.set_mode((640, 480))
 
 
 board = Board(10, 10)
@@ -196,7 +186,10 @@ while running:
     tileMap.scroll_right(scroll_right)
     tileMap.scroll_up(scroll_up)
     # Render game screen here
-    tileMap.update_display()
+    screen.blit(tileMap.surface, (0, 0), tileMap.viewport)
+    screen.blit(panel_surface, panel_rect)
+    pygame.display.flip()
+    pygame.display.update()
     clock.tick(60)
 
 
