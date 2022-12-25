@@ -160,7 +160,28 @@ board.tiles[2][2].place(pieces.City("name", board.tiles[2][2]))
 board.draw()
 
 tileMap = board.tileMap
-tileMap.screen.blit(tileMap.surface, (0, 0), tileMap.viewport)
+screen.blit(tileMap.surface, (0, 0), tileMap.viewport)
+
+
+panel_surface = pygame.Surface((200, 480))
+panel_rect = panel_surface.get_rect()
+panel_rect.topleft = (0, 0)
+
+# Set the background color for the panel
+panel_surface.fill((200, 200, 200))
+
+# Draw some options on the panel surface
+font = pygame.font.Font(None, 36)
+text_surface = font.render("Option 1", True, (0, 0, 0))
+text_rect = text_surface.get_rect()
+text_rect.topleft = (10, 10)
+panel_surface.blit(text_surface, text_rect)
+
+text_surface = font.render("Option 2", True, (0, 0, 0))
+text_rect = text_surface.get_rect()
+text_rect.topleft = (10, 50)
+panel_surface.blit(text_surface, text_rect)
+
 
 clock = pygame.time.Clock()
 running = True
