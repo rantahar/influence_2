@@ -2,35 +2,7 @@ import pygame
 import math
 import random
 import pieces
-
-
-def load_tileset(filename):
-    # Load the map tiles
-    tileset = pygame.image.load(filename)
-    tileset_width, tileset_height = tileset.get_size()
-    tile_height = 34
-    tile_width = 32
-
-    rows = tileset_height // tile_height
-    columns = tileset_width // tile_width
-
-    # Create a 2D list to store the tiles
-    tiles = []
-    for i in range(rows):
-        tiles.append([])
-        for j in range(columns):
-            x = j * tile_width
-            y = i * tile_height
-            # Create a surface for the tile
-            tile_surface = pygame.Surface((tile_width, tile_height))
-            # Copy the tile image from the tileset image to the tile surface
-            tile_surface.blit(tileset, (0, 0), (x, y, tile_width, tile_height))
-            # Set the colorkey for the tile surface
-            tile_surface.set_colorkey((0, 0, 0))
-            # Add the tile surface to the list of tiles
-            tiles[i].append(tile_surface)
-
-    return tiles
+from tileset import load_tileset
 
 
 class Hexagon:
@@ -60,6 +32,12 @@ class Hexagon:
         # Draw the outline of the hexagon
         pygame.draw.polygon(screen, (0, 0, 0), self.vertices, 1)
 
+    def draw_piece(self, screen, piece):
+        sprite = piece.get_sprite()
+        size = self.width*3//5
+        sprite = pygame.transform.scale(sprite, (size, size))
+        screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
+
 
 class TileMap():
     def __init__(self, rows = 10, cols = 10):
@@ -83,7 +61,7 @@ class TileMap():
         self.surface.fill((255, 255, 255))
         self.viewport = pygame.Rect((320, 240), (640, 480))
 
-        self.map_tiles = load_tileset('assets/elite_command_art_terrain/tileset.png')[0]
+        self.map_tiles = load_tileset('assets/elite_command_art_terrain/tileset.png', 34, 32)[0]
         self.land_sprites = {
             'forest': self.map_tiles[3],
             'meadow': self.map_tiles[0]
@@ -116,8 +94,11 @@ class TileMap():
     def draw_tile(self, tile):
         # Draw a tile
         hexagon = self.hex_grid[tile.x][tile.y]
-        tile = self.land_sprites[tile.land_type]
-        hexagon.draw(self.surface, tile)
+        sprite = self.land_sprites[tile.land_type]
+        hexagon.draw(self.surface, sprite)
+
+        for piece in tile.pieces:
+            hexagon.draw_piece(self.surface, piece)
 
 
 class Tile:
@@ -133,11 +114,12 @@ class Tile:
         self.neighbors = None
 
         self.land_type = random.choice(['forest', 'meadow'])
+        self.owner = "white"
 
-        self.city = None
+        self.pieces = []
 
-    def new_city(self):
-        self.city = City()
+    def place(self, piece):
+        self.pieces.append(piece)
 
 
 class Board:
@@ -182,7 +164,9 @@ class Board:
 
 pygame.init()
 
+
 board = Board(10, 10)
+board.tiles[2][2].place(pieces.City("name", board.tiles[2][2]))
 board.draw()
 
 tileMap = board.tileMap

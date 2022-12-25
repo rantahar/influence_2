@@ -1,5 +1,10 @@
+from tileset import load_tileset
 
-class GamePiece:
+
+sprites = load_tileset("assets/Toens_Medieval_Strategy_Sprite_Pack/tileset.png", 16, 16)
+
+
+class GamePiece():
     def __init__(self, tile):
         self.tile = tile
 
@@ -8,6 +13,9 @@ class GamePiece:
 
     def get_tile(self):
         return self.tile
+
+    def get_sprite(self):
+        return sprites[5][6]
 
 
 class City(GamePiece):
@@ -22,6 +30,9 @@ class City(GamePiece):
 
     def change_owner(self):
         self.owner = self.tile.owner
+
+    def get_sprite(self):
+        return sprites[1][0]
 
     def food_production(self):
         food = 0
