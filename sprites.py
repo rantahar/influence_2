@@ -26,3 +26,9 @@ def load_tileset(filename, tile_height, tile_width):
             tiles[i].append(tile_surface)
 
     return tiles
+
+
+piece_sprites = load_tileset("assets/Toens_Medieval_Strategy_Sprite_Pack/tileset.png", 16, 16)
+map_sprites = load_tileset('assets/elite_command_art_terrain/tileset.png', 34, 32)[0]
+
+

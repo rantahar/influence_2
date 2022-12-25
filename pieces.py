@@ -1,7 +1,4 @@
-from tileset import load_tileset
-
-
-sprites = load_tileset("assets/Toens_Medieval_Strategy_Sprite_Pack/tileset.png", 16, 16)
+from sprites import piece_sprites as sprites
 
 
 class GamePiece():

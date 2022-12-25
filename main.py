@@ -2,7 +2,7 @@ import pygame
 import math
 import random
 import pieces
-from tileset import load_tileset
+from sprites import map_sprites
 
 
 class Hexagon:
@@ -61,7 +61,7 @@ class TileMap():
         self.surface.fill((255, 255, 255))
         self.viewport = pygame.Rect((320, 240), (640, 480))
 
-        self.map_tiles = load_tileset('assets/elite_command_art_terrain/tileset.png', 34, 32)[0]
+        self.map_tiles = map_sprites
         self.land_sprites = {
             'forest': self.map_tiles[3],
             'meadow': self.map_tiles[0]
