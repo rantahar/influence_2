@@ -179,8 +179,9 @@ class ActionWindow():
         )
 
     def check_events(self, event):
-        if event.ui_element == self.hello_button:
-            print('Hello World!')
+        if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            if event.ui_element == self.hello_button:
+                print('Hello World!')
 
 
 pygame.init()
@@ -193,7 +194,7 @@ tile.owner = Player()
 city = pieces.City("name", tile)
 tile.place(city)
 
-window = ActionWindow()
+window = ActionWindow(ui_manager)
 
 
 clock = pygame.time.Clock()
@@ -204,9 +205,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        window.check_events()
-
-        manager.process_events(event)
+        window.check_events(event)
+        ui_manager.process_events(event)
 
     keys = pygame.key.get_pressed()
 
@@ -227,11 +227,11 @@ while running:
     board.scroll_right(scroll_right)
     board.scroll_up(scroll_up)
 
-    manager.update(time_delta)
+    ui_manager.update(time_delta)
 
     # Render game screen here
     board.draw(screen)
-    manager.draw_ui(screen)
+    ui_manager.draw_ui(screen)
 
     pygame.display.update()
     clock.tick(60)
