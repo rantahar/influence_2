@@ -44,21 +44,21 @@ class Hexagon:
         screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
 
     def draw_line(self, screen, dir, color):
-        if dir == "sup":
+        if dir == "rdn":
             x1, y1 = self.vertices[0]
             x2, y2 = self.vertices[1]
             x1, y1, x2, y2 = x1-4, y1-4, x2, y2-4
-        elif dir == "rdn":
+        elif dir == "sup":
             x1, y1 = self.vertices[1]
             x2, y2 = self.vertices[2]
             x1, y1, x2, y2 = x1-4, y1-4, x2, y2-4
         elif dir == "qdn":
             x1, y1 = self.vertices[2]
             x2, y2 = self.vertices[3]
-        elif dir == "sdn":
+        elif dir == "rup":
             x1, y1 = self.vertices[3]
             x2, y2 = self.vertices[4]
-        elif dir == "rup":
+        elif dir == "sdn":
             x1, y1 = self.vertices[4]
             x2, y2 = self.vertices[5]
         elif dir == "qup":
@@ -229,14 +229,14 @@ board = Board(10, 10)
 tile = board.tiles[2][2]
 player = Player()
 tile.owner = player
-tile.sup.owner = player
-tile.sdn.owner = player
+tile.rup.owner = player
+tile.rdn.owner = player
 city = pieces.City("name", tile)
 tile.place(pieces.City("name", tile))
-tile.sup.place(pieces.City("name", tile))
-tile.sup.sup.place(pieces.City("name", tile))
-tile.sdn.place(pieces.City("name", tile))
-tile.sdn.sdn.place(pieces.City("name", tile))
+tile.rup.place(pieces.City("name", tile))
+tile.rup.rup.place(pieces.City("name", tile))
+tile.rdn.place(pieces.City("name", tile))
+tile.rdn.rdn.place(pieces.City("name", tile))
 
 window = ActionWindow(ui_manager)
 
