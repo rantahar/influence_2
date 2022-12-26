@@ -1,8 +1,13 @@
 import pygame
+import pygame_gui
 import math
 import random
 import pieces
+from players import Player
 from sprites import map_sprites, piece_sprites
+
+window_width = 800
+window_height = 600
 
 
 class Hexagon:
@@ -52,13 +57,16 @@ class TileMap():
         self.board_height = self.hex_height*rows
 
         # Set the starting position for the grid
-        self.start_x = self.hex_size + 320
-        self.start_y = self.hex_size + 240
+        self.start_x = self.hex_size + window_width//2
+        self.start_y = self.hex_size + window_height//2
 
         # Initialize screen and fill with white
-        self.surface = pygame.Surface((self.board_width + 1280, self.board_height + 480))
+        self.surface = pygame.Surface((self.board_width + window_width, self.board_height + window_height))
         self.surface.fill((255, 255, 255))
-        self.viewport = pygame.Rect((320, 240), (640, 480))
+        self.viewport = pygame.Rect(
+            (window_width//2, window_height//2),
+            (window_width, window_height)
+        )
 
         # Create a 2D list to store the hexagon objects
         self.hex_grid = []
@@ -73,12 +81,6 @@ class TileMap():
                 # Create a hexagon object and add it to the grid
                 hexagon = Hexagon(center_x, center_y, self.hex_size)
                 self.hex_grid[i].append(hexagon)
-
-    def scroll_right(self, step):
-        self.viewport.x -= step
-
-    def scroll_up(self, step):
-        self.viewport.y -= step
 
     def draw_tile(self, tile):
         # Draw a tile
@@ -103,7 +105,7 @@ class Tile:
         self.neighbors = None
 
         self.land_type = random.choice(['forest', 'meadow'])
-        self.owner = "white"
+        self.owner = None
 
         self.pieces = []
 
@@ -115,11 +117,16 @@ class Board:
     def __init__(self, rows=10, cols=10):
         # Maps and draws hexagons on a lattice
         self.tileMap = TileMap(rows, cols)
+        self.surface = self.tileMap.surface
+        self.viewport = self.tileMap.viewport
 
         self.rows = rows
         self.cols = cols
 
-        self.tiles = [[Tile(x, y, self.tileMap) for y in range(cols)] for x in range(cols)]
+        self.tiles = [
+            [Tile(x, y, self.tileMap) for y in range(cols)]
+            for x in range(cols)
+        ]
 
         for x in range(self.cols):
             for y in range(self.rows):
@@ -141,54 +148,65 @@ class Board:
 
                 tile.neighbors = [tile.qup, tile.sup, tile.rup, tile.qdn, tile.sdn, tile.rdn]
 
-    def draw(self):
+    def scroll_right(self, step):
+        self.viewport.x -= step
+
+    def scroll_up(self, step):
+        self.viewport.y -= step
+
+    def draw(self, screen):
         for x in range(self.cols):
             for y in range(self.rows):
                 tile = self.tiles[x][y]
                 self.tileMap.draw_tile(tile)
+        screen.blit(board.surface, (0, 0), board.viewport)
 
     def new_city(self, x, y):
         self.tiles[x][y].new_city()
 
 
-pygame.init()
-screen = pygame.display.set_mode((640, 480))
+class ActionWindow():
+    def __init__(self, manager):
+        self.window = pygame_gui.elements.UIWindow(
+            rect=pygame.Rect((100, 100), (160, 240)),
+            manager=manager,
+        )
+        self.hello_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((10, 10), (100, 50)),
+            text='Say Hello',
+            container=self.window,
+            manager=manager
+        )
 
+    def check_events(self, event):
+        if event.ui_element == self.hello_button:
+            print('Hello World!')
+
+
+pygame.init()
+screen = pygame.display.set_mode((window_width, window_height))
+ui_manager = pygame_gui.UIManager((window_width, window_height))
 
 board = Board(10, 10)
-board.tiles[2][2].place(pieces.City("name", board.tiles[2][2]))
-board.draw()
+tile = board.tiles[2][2]
+tile.owner = Player()
+city = pieces.City("name", tile)
+tile.place(city)
 
-tileMap = board.tileMap
-screen.blit(tileMap.surface, (0, 0), tileMap.viewport)
-
-
-panel_surface = pygame.Surface((200, 480))
-panel_rect = panel_surface.get_rect()
-panel_rect.topleft = (0, 0)
-
-# Set the background color for the panel
-panel_surface.fill((200, 200, 200))
-
-# Draw some options on the panel surface
-font = pygame.font.Font(None, 36)
-text_surface = font.render("Option 1", True, (0, 0, 0))
-text_rect = text_surface.get_rect()
-text_rect.topleft = (10, 10)
-panel_surface.blit(text_surface, text_rect)
-
-text_surface = font.render("Option 2", True, (0, 0, 0))
-text_rect = text_surface.get_rect()
-text_rect.topleft = (10, 50)
-panel_surface.blit(text_surface, text_rect)
+window = ActionWindow()
 
 
 clock = pygame.time.Clock()
 running = True
 while running:
+    time_delta = clock.tick(60)/1000.0
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        window.check_events()
+
+        manager.process_events(event)
 
     keys = pygame.key.get_pressed()
 
@@ -196,20 +214,25 @@ while running:
     scroll_right = 0
     scroll_up = 0
     if keys[pygame.K_LEFT]:
-        scroll_right += 5
+        scroll_right += window_width//100
     if keys[pygame.K_RIGHT]:
-        scroll_right -= 5
+        scroll_right -= window_width//100
     if keys[pygame.K_UP]:
-        scroll_up += 5
+        scroll_up += window_height//100
     if keys[pygame.K_DOWN]:
-        scroll_up -= 5
+        scroll_up -= window_height//100
+
+
     # Update game state here
-    tileMap.scroll_right(scroll_right)
-    tileMap.scroll_up(scroll_up)
+    board.scroll_right(scroll_right)
+    board.scroll_up(scroll_up)
+
+    manager.update(time_delta)
+
     # Render game screen here
-    screen.blit(tileMap.surface, (0, 0), tileMap.viewport)
-    screen.blit(panel_surface, panel_rect)
-    pygame.display.flip()
+    board.draw(screen)
+    manager.draw_ui(screen)
+
     pygame.display.update()
     clock.tick(60)
 
