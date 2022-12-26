@@ -51,19 +51,23 @@ class Hexagon:
         elif dir == "sup":
             x1, y1 = self.vertices[1]
             x2, y2 = self.vertices[2]
-            x1, y1, x2, y2 = x1-4, y1-4, x2, y2-4
+            x1, y1, x2, y2 = x1, y1-4, x2+4, y2-4
         elif dir == "qdn":
             x1, y1 = self.vertices[2]
             x2, y2 = self.vertices[3]
+            x1, y1, x2, y2 = x1+4, y1, x2+4, y2-4
         elif dir == "rup":
             x1, y1 = self.vertices[3]
             x2, y2 = self.vertices[4]
+            x1, y1, x2, y2 = x1+4, y1-4, x2+4, y2+4
         elif dir == "sdn":
             x1, y1 = self.vertices[4]
             x2, y2 = self.vertices[5]
+            x1, y1, x2, y2 = x1, y1+4, x2-4, y2+4
         elif dir == "qup":
             x1, y1 = self.vertices[5]
             x2, y2 = self.vertices[0]
+            x1, y1, x2, y2 = x1-4, y1+4, x2-4, y2-4
         pygame.draw.line(screen, color, (x1, y1), (x2, y2), 8)
 
 
