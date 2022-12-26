@@ -3,7 +3,7 @@ import pygame_gui
 import math
 import random
 import pieces
-from players import Player
+from players import Player, player_colors
 from sprites import map_sprites, piece_sprites
 
 window_width = 800
@@ -43,6 +43,29 @@ class Hexagon:
         sprite = pygame.transform.scale(sprite, (size, size))
         screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
 
+    def draw_line(self, screen, dir, color):
+        if dir == "sup":
+            x1, y1 = self.vertices[0]
+            x2, y2 = self.vertices[1]
+            x1, y1, x2, y2 = x1-4, y1-4, x2, y2-4
+        elif dir == "rdn":
+            x1, y1 = self.vertices[1]
+            x2, y2 = self.vertices[2]
+            x1, y1, x2, y2 = x1-4, y1-4, x2, y2-4
+        elif dir == "qdn":
+            x1, y1 = self.vertices[2]
+            x2, y2 = self.vertices[3]
+        elif dir == "sdn":
+            x1, y1 = self.vertices[3]
+            x2, y2 = self.vertices[4]
+        elif dir == "rup":
+            x1, y1 = self.vertices[4]
+            x2, y2 = self.vertices[5]
+        elif dir == "qup":
+            x1, y1 = self.vertices[5]
+            x2, y2 = self.vertices[0]
+        pygame.draw.line(screen, color, (x1, y1), (x2, y2), 8)
+
 
 class TileMap():
     def __init__(self, rows = 10, cols = 10):
@@ -70,9 +93,9 @@ class TileMap():
 
         # Create a 2D list to store the hexagon objects
         self.hex_grid = []
-        for i in range(self.rows):
+        for j in range(self.cols):
             self.hex_grid.append([])
-            for j in range(self.cols):
+            for i in range(self.rows):
                 # Calculate the center position of the hexagon
                 center_x = self.start_x + j * self.hex_width
                 center_y = self.start_y + i * (self.hex_height + self.hex_size)//2
@@ -80,7 +103,7 @@ class TileMap():
                     center_x += self.hex_width//2
                 # Create a hexagon object and add it to the grid
                 hexagon = Hexagon(center_x, center_y, self.hex_size)
-                self.hex_grid[i].append(hexagon)
+                self.hex_grid[j].append(hexagon)
 
     def draw_tile(self, tile):
         # Draw a tile
@@ -90,6 +113,20 @@ class TileMap():
 
         for piece in tile.pieces:
             hexagon.draw_piece(self.surface, piece)
+
+        if tile.owner:
+            if tile.qup.owner is None or tile.owner != tile.qup.owner:
+                hexagon.draw_line(self.surface, "qup", tile.owner.color)
+            if tile.rup.owner is None or tile.owner != tile.rup.owner:
+                hexagon.draw_line(self.surface, "rup", tile.owner.color)
+            if tile.sup.owner is None or tile.owner != tile.sup.owner:
+                hexagon.draw_line(self.surface, "sup", tile.owner.color)
+            if tile.qdn.owner is None or tile.owner != tile.qdn.owner:
+                hexagon.draw_line(self.surface, "qdn", tile.owner.color)
+            if tile.sdn.owner is None or tile.owner != tile.sdn.owner:
+                hexagon.draw_line(self.surface, "sdn", tile.owner.color)
+            if tile.rdn.owner is None or tile.owner != tile.rdn.owner:
+                hexagon.draw_line(self.surface, "rdn", tile.owner.color)
 
 
 class Tile:
@@ -112,6 +149,9 @@ class Tile:
     def place(self, piece):
         self.pieces.append(piece)
 
+    def __str__(self):
+        return f'({self.x}, {self.y})'
+
 
 class Board:
     def __init__(self, rows=10, cols=10):
@@ -131,19 +171,19 @@ class Board:
         for x in range(self.cols):
             for y in range(self.rows):
                 tile = self.tiles[x][y]
-                if x % 2 == 1:
+                if y % 2 == 1:
                     tile.qup = self.tiles[(x+1)%cols][y]
                     tile.sup = self.tiles[x][(y+1)%rows]
-                    tile.rup = self.tiles[(x+cols-1)%cols][(y+rows-1)%rows]
+                    tile.rup = self.tiles[x][(y+rows-1)%rows]
                     tile.qdn = self.tiles[(x+cols-1)%cols][y]
-                    tile.sdn = self.tiles[x][(y+rows-1)%rows]
+                    tile.sdn = self.tiles[(x+1)%cols][(y+rows-1)%rows]
                     tile.rdn = self.tiles[(x+1)%cols][(y+1)%rows]
                 else:
                     tile.qup = self.tiles[(x+1)%cols][y]
                     tile.sup = self.tiles[(x+cols-1)%cols][(y+1)%rows]
-                    tile.rup = self.tiles[x][(y+rows-1)%rows]
+                    tile.rup = self.tiles[(x+cols-1)%cols][(y+rows-1)%rows]
                     tile.qdn = self.tiles[(x+cols-1)%rows][y]
-                    tile.sdn = self.tiles[(x+1)%rows][(y+rows-1)%rows]
+                    tile.sdn = self.tiles[x][(y+rows-1)%rows]
                     tile.rdn = self.tiles[x][(y+1)%rows]
 
                 tile.neighbors = [tile.qup, tile.sup, tile.rup, tile.qdn, tile.sdn, tile.rdn]
@@ -160,9 +200,6 @@ class Board:
                 tile = self.tiles[x][y]
                 self.tileMap.draw_tile(tile)
         screen.blit(board.surface, (0, 0), board.viewport)
-
-    def new_city(self, x, y):
-        self.tiles[x][y].new_city()
 
 
 class ActionWindow():
@@ -190,9 +227,16 @@ ui_manager = pygame_gui.UIManager((window_width, window_height))
 
 board = Board(10, 10)
 tile = board.tiles[2][2]
-tile.owner = Player()
+player = Player()
+tile.owner = player
+tile.sup.owner = player
+tile.sdn.owner = player
 city = pieces.City("name", tile)
-tile.place(city)
+tile.place(pieces.City("name", tile))
+tile.sup.place(pieces.City("name", tile))
+tile.sup.sup.place(pieces.City("name", tile))
+tile.sdn.place(pieces.City("name", tile))
+tile.sdn.sdn.place(pieces.City("name", tile))
 
 window = ActionWindow(ui_manager)
 
