@@ -22,6 +22,9 @@ class GamePiece():
             "wood": 0
         }
 
+    def influence(self):
+        return 0
+
     def update(self):
         pass
 
@@ -77,6 +80,10 @@ class City(GamePiece):
                 for city in City.all:
                     if city.owner is player:
                         influence += tile.influences[city.id]
+                for piece in tile.pieces:
+                    if piece.owner is player:
+                        influence += piece.influence()
+
                 if influence > max_influence:
                     new_owner = player
                 if influence == max_influence:

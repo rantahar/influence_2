@@ -1,7 +1,5 @@
 import pygame
 import pygame_gui
-import math
-import random
 import pieces
 from players import Player
 from pieces import City
@@ -20,7 +18,7 @@ board = Board(10, 10, window_width, window_height)
 
 textbox = pygame_gui.elements.UITextBox(
     html_text="Hello",
-    relative_rect=(-2,-2,window_width+4,50),
+    relative_rect=(-2, -2, window_width+4, 50),
 )
 
 
