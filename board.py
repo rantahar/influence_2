@@ -32,10 +32,15 @@ class Hexagon:
         pygame.draw.polygon(screen, (0, 0, 0), self.vertices, 1)
 
     def draw_piece(self, screen, piece):
-        sprite = piece_sprites[piece.get_type()]
+        sprite = piece_sprites[piece.get_sprite_id()]
         size = self.width*3//5
         sprite = pygame.transform.scale(sprite, (size, size))
-        screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
+        if piece.rotations is None:
+            screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
+        else:
+            for rot in piece.rotations:
+                rotated = pygame.transform.rotate(sprite, rot)
+                screen.blit(rotated, (self.center_x-size//2, self.center_y-size//2))
 
     def draw_line(self, screen, dir, color):
         if dir == "rdn":

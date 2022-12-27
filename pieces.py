@@ -5,6 +5,7 @@ from players import Player
 class GamePiece():
     def __init__(self, tile):
         self.tile = tile
+        self.rotations = None
 
     def get_owner(self):
         return self.tile.owner
@@ -12,8 +13,14 @@ class GamePiece():
     def get_tile(self):
         return self.tile
 
-    def get_type(self):
+    def get_sprite_id(self):
         return "unknown"
+
+    def production(self):
+        return {
+            "food": 0,
+            "wood": 0
+        }
 
     def update(self):
         pass
@@ -37,14 +44,20 @@ class City(GamePiece):
     def change_owner(self):
         self.owner = self.tile.owner
 
-    def get_type(self):
+    def get_sprite_id(self):
         return "city"+str(self.level)
 
     def collect_resources(self):
         if self.owner:
             for nb_tile in self.tile.neighbors:
-                self.owner.food += nb_tile.food_production()
-                self.owner.wood += nb_tile.wood_production()
+                if nb_tile.land_type == "meadow":
+                    self.owner.food += 1
+                elif nb_tile.land_type == "forest":
+                    self.owner.wood += 1
+
+                for piece in nb_tile.pieces:
+                    self.owner.food += piece.production()["food"]
+                    self.owner.wood += piece.production()["wood"]
 
     def distance_to_tile(self, tile):
         return self.tile.distance_to(tile)
@@ -75,7 +88,33 @@ class City(GamePiece):
         self.set_influences(board)
 
 
+class Road(GamePiece):
+    def __init__(self, tile):
+        super().__init__(tile)
+        self.rotations = []
 
+    def get_sprite_id(self):
+        return "road"
 
+    def update(self, board):
+        self.rotations = []
+        for piece in self.tile.qup.pieces:
+            if type(piece) == Road:
+                self.rotations.append(0)
+        for piece in self.tile.qdn.pieces:
+            if type(piece) == Road:
+                self.rotations.append(180)
+        for piece in self.tile.rup.pieces:
+            if type(piece) == Road:
+                self.rotations.append(120)
+        for piece in self.tile.rdn.pieces:
+            if type(piece) == Road:
+                self.rotations.append(300)
+        for piece in self.tile.sup.pieces:
+            if type(piece) == Road:
+                self.rotations.append(240)
+        for piece in self.tile.sdn.pieces:
+            if type(piece) == Road:
+                self.rotations.append(60)
 
 

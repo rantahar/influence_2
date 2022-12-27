@@ -4,14 +4,13 @@ import math
 import random
 import pieces
 from players import Player
+from pieces import City
 from board import Board
+from itertools import cycle
+
 
 window_width = 800
 window_height = 600
-
-
-def end_turn(board):
-    print("Turn ended!")
 
 
 pygame.init()
@@ -19,11 +18,16 @@ screen = pygame.display.set_mode((window_width, window_height))
 ui_manager = pygame_gui.UIManager((window_width, window_height))
 board = Board(10, 10, window_width, window_height)
 
+textbox = pygame_gui.elements.UITextBox(
+    html_text="Hello",
+    relative_rect=(-2,-2,window_width+4,50),
+)
+
+
 tile = board.tiles[2][2]
 player = Player()
 tile.owner = player
 city = pieces.City("name", tile)
-city.level = 2
 tile.place(city)
 tile = board.tiles[2][5]
 player = Player()
@@ -31,7 +35,26 @@ tile.owner = player
 city = pieces.City("name", tile)
 tile.place(city)
 
-print(tile.rup.influences)
+
+player_turns = cycle(Player.all)
+active_player = None
+
+
+def start_turn():
+    global active_player
+
+    # next player
+    active_player = next(player_turns)
+    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, wood: {active_player.wood}")
+
+    # gather resources
+    for city in City.all:
+        if city.owner is active_player:
+            city.collect_resources()
+
+
+start_turn()
+
 
 end_turn_button = pygame_gui.elements.UIButton(
     relative_rect=pygame.Rect((window_width - 110, window_height-60), (100, 50)),
@@ -50,7 +73,7 @@ while running:
 
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == end_turn_button:
-                end_turn(board)
+                start_turn()
 
         #window.check_events(event)
         ui_manager.process_events(event)
@@ -69,6 +92,9 @@ while running:
     if keys[pygame.K_DOWN]:
         scroll_up -= window_height//100
 
+    # AI actions
+    if active_player.is_ai:
+        end_turn()
 
     # Update game state here
     board.scroll_right(scroll_right)
