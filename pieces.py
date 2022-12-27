@@ -2,9 +2,34 @@ import itertools
 from players import Player
 
 
+def find_tile_owners(board):
+    for tile in board.all_tiles:
+        new_owner = tile.owner
+        max_influence = 0
+        for player in Player.all:
+            influence = 0
+            for city in City.all:
+                if city.owner is player:
+                    influence += tile.influences[city.id]
+            for piece in tile.pieces:
+                if piece.get_owner() is player:
+                    influence += piece.influence()
+
+            if influence > max_influence:
+                new_owner = player
+            if influence == max_influence:
+                # tie
+                new_owner = tile.owner
+        tile.owner = new_owner
+
+
+
 class GamePiece():
+    id_iterator = itertools.count()
+
     def __init__(self, tile):
         self.tile = tile
+        self.id = next(GamePiece.id_iterator)
         self.rotations = None
 
     def get_owner(self):
@@ -30,7 +55,6 @@ class GamePiece():
 
 
 class City(GamePiece):
-    id_iterator = itertools.count()
     all = []
 
     def __init__(self, name, tile, level=1):
@@ -38,7 +62,6 @@ class City(GamePiece):
         self.name = name
         self.level = level
         self.owner = tile.owner
-        self.id = next(City.id_iterator)
         City.all.append(self)
 
     def get_owner(self):
@@ -73,26 +96,9 @@ class City(GamePiece):
             else:
                 tile.influences[self.id] = 0
 
-            new_owner = tile.owner
-            max_influence = 0
-            for player in Player.all:
-                influence = 0
-                for city in City.all:
-                    if city.owner is player:
-                        influence += tile.influences[city.id]
-                for piece in tile.pieces:
-                    if piece.get_owner() is player:
-                        influence += piece.influence()
-
-                if influence > max_influence:
-                    new_owner = player
-                if influence == max_influence:
-                    # tie
-                    new_owner = tile.owner
-            tile.owner = new_owner
-
     def update(self, board):
         self.set_influences(board)
+        find_tile_owners(board)
 
 
 class Road(GamePiece):
