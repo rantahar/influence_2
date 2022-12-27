@@ -72,7 +72,7 @@ class Hexagon:
 
 
 class TileMap():
-    def __init__(self, rows = 10, cols = 10):
+    def __init__(self, rows=10, cols=10):
         self.rows = rows
         self.cols = cols
 
@@ -94,6 +94,9 @@ class TileMap():
             (window_width//2, window_height//2),
             (window_width, window_height)
         )
+        self.overlay_surface = pygame.Surface((self.board_width + window_width, self.board_height + window_height))
+        self.overlay_surface.set_colorkey((0,0,0))
+        self.overlay_surface.set_alpha(100)
 
         # Create a 2D list to store the hexagon objects
         self.hex_grid = []
@@ -120,17 +123,21 @@ class TileMap():
 
         if tile.owner:
             if tile.qup.owner is None or tile.owner != tile.qup.owner:
-                hexagon.draw_line(self.surface, "qup", tile.owner.color)
+                hexagon.draw_line(self.overlay_surface, "qup", tile.owner.color)
             if tile.rup.owner is None or tile.owner != tile.rup.owner:
-                hexagon.draw_line(self.surface, "rup", tile.owner.color)
+                hexagon.draw_line(self.overlay_surface, "rup", tile.owner.color)
             if tile.sup.owner is None or tile.owner != tile.sup.owner:
-                hexagon.draw_line(self.surface, "sup", tile.owner.color)
+                hexagon.draw_line(self.overlay_surface, "sup", tile.owner.color)
             if tile.qdn.owner is None or tile.owner != tile.qdn.owner:
-                hexagon.draw_line(self.surface, "qdn", tile.owner.color)
+                hexagon.draw_line(self.overlay_surface, "qdn", tile.owner.color)
             if tile.sdn.owner is None or tile.owner != tile.sdn.owner:
-                hexagon.draw_line(self.surface, "sdn", tile.owner.color)
+                hexagon.draw_line(self.overlay_surface, "sdn", tile.owner.color)
             if tile.rdn.owner is None or tile.owner != tile.rdn.owner:
-                hexagon.draw_line(self.surface, "rdn", tile.owner.color)
+                hexagon.draw_line(self.overlay_surface, "rdn", tile.owner.color)
+
+    def draw(self, screen):
+        screen.blit(board.surface, (0, 0), board.viewport)
+        screen.blit(self.overlay_surface, (0, 0), board.viewport)
 
 
 class Tile:
@@ -203,7 +210,8 @@ class Board:
             for y in range(self.rows):
                 tile = self.tiles[x][y]
                 self.tileMap.draw_tile(tile)
-        screen.blit(board.surface, (0, 0), board.viewport)
+
+        self.tileMap.draw(screen)
 
 
 class ActionWindow():
