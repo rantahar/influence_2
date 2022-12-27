@@ -2,26 +2,31 @@ import itertools
 from players import Player
 
 
+def find_influences(board):
+    for tile in board.all_tiles:
+        tile.influences = {}
+        for player in Player.all:
+            tile.influences[player] = 0
+
+    for tile in board.all_tiles:
+        for piece in tile.pieces:
+            piece.add_influences(board)
+
+
 def find_tile_owners(board):
+    find_influences(board)
+
     for tile in board.all_tiles:
         new_owner = tile.owner
         max_influence = 0
         for player in Player.all:
-            influence = 0
-            for city in City.all:
-                if city.owner is player:
-                    influence += tile.influences[city.id]
-            for piece in tile.pieces:
-                if piece.get_owner() is player:
-                    influence += piece.influence()
-
+            influence = tile.influences[player]
             if influence > max_influence:
                 new_owner = player
             if influence == max_influence:
                 # tie
                 new_owner = tile.owner
         tile.owner = new_owner
-
 
 
 class GamePiece():
@@ -47,8 +52,8 @@ class GamePiece():
             "wood": 0
         }
 
-    def influence(self):
-        return 0
+    def add_influences(self):
+        pass
 
     def update(self):
         pass
@@ -88,16 +93,13 @@ class City(GamePiece):
     def distance_to_tile(self, tile):
         return self.tile.distance_to(tile)
 
-    def set_influences(self, board):
+    def add_influences(self, board):
         for tile in board.all_tiles:
             n = self.level - self.tile.distance_to(tile) + 1
             if n > 0:
-                tile.influences[self.id] = n
-            else:
-                tile.influences[self.id] = 0
+                tile.influences[self.owner] += n
 
     def update(self, board):
-        self.set_influences(board)
         find_tile_owners(board)
 
 
@@ -105,6 +107,13 @@ class Road(GamePiece):
     def __init__(self, tile):
         super().__init__(tile)
         self.rotations = []
+
+    def add_influences(self, board):
+        for tile in self.tile.neighbors:
+            tile.influences[self.tile.owner] += 1
+
+    def update(self, board):
+        find_tile_owners(board)
 
     def get_sprite_id(self):
         return "road"
