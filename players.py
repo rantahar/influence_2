@@ -10,12 +10,15 @@ next_color = 0
 
 
 class Player():
+    all = []
+
     def __init__(self, is_ai=False):
         global next_color
         self.is_ai = is_ai
         self.name = list(player_colors.keys())[next_color]
         self.color = player_colors[self.name]
         next_color += 1
+        Player.all.append(self)
 
         self.food = 0
         self.wood = 0
