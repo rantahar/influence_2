@@ -81,7 +81,7 @@ class City(GamePiece):
                     if city.owner is player:
                         influence += tile.influences[city.id]
                 for piece in tile.pieces:
-                    if piece.owner is player:
+                    if piece.get_owner() is player:
                         influence += piece.influence()
 
                 if influence > max_influence:
@@ -105,23 +105,17 @@ class Road(GamePiece):
 
     def update(self, board):
         self.rotations = []
-        for piece in self.tile.qup.pieces:
-            if type(piece) == Road:
-                self.rotations.append(0)
-        for piece in self.tile.qdn.pieces:
-            if type(piece) == Road:
-                self.rotations.append(180)
-        for piece in self.tile.rup.pieces:
-            if type(piece) == Road:
-                self.rotations.append(120)
-        for piece in self.tile.rdn.pieces:
-            if type(piece) == Road:
-                self.rotations.append(300)
-        for piece in self.tile.sup.pieces:
-            if type(piece) == Road:
-                self.rotations.append(240)
-        for piece in self.tile.sdn.pieces:
-            if type(piece) == Road:
-                self.rotations.append(60)
+        if Road in [type(p) for p in self.tile.qup.pieces]:
+            self.rotations.append(0)
+        if Road in [type(p) for p in self.tile.qdn.pieces]:
+            self.rotations.append(180)
+        if Road in [type(p) for p in self.tile.rup.pieces]:
+            self.rotations.append(120)
+        if Road in [type(p) for p in self.tile.rdn.pieces]:
+            self.rotations.append(300)
+        if Road in [type(p) for p in self.tile.sup.pieces]:
+            self.rotations.append(240)
+        if Road in [type(p) for p in self.tile.sdn.pieces]:
+            self.rotations.append(60)
 
 

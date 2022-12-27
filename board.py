@@ -33,14 +33,18 @@ class Hexagon:
 
     def draw_piece(self, screen, piece):
         sprite = piece_sprites[piece.get_sprite_id()]
-        size = self.width*3//5
-        sprite = pygame.transform.scale(sprite, (size, size))
         if piece.rotations is None:
+            size = self.width*3//5
+            sprite = pygame.transform.scale(sprite, (size, size))
             screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
         else:
+            # These are roads. TODO: Should set the size in the sprite sheet to be
+            # consistent and general
+            sprite = pygame.transform.scale(sprite, (self.width, self.height))
             for rot in piece.rotations:
                 rotated = pygame.transform.rotate(sprite, rot)
-                screen.blit(rotated, (self.center_x-size//2, self.center_y-size//2))
+                width, height = rotated.get_size()
+                screen.blit(rotated, (self.center_x-width//2, self.center_y-height//2))
 
     def draw_line(self, screen, dir, color):
         if dir == "rdn":
@@ -172,6 +176,9 @@ class Tile:
     def place(self, piece):
         self.pieces.append(piece)
         piece.update(self.board)
+        for tile in self.neighbors:
+            for piece in tile.pieces:
+                piece.update(self.board)
 
     def __str__(self):
         return f'({self.x}, {self.y})'

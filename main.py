@@ -25,14 +25,22 @@ textbox = pygame_gui.elements.UITextBox(
 tile = board.tiles[2][2]
 player = Player()
 tile.owner = player
-city = pieces.City("name", tile)
-tile.place(city)
-tile = board.tiles[2][5]
-player = Player()
-tile.owner = player
+road = pieces.Road(tile)
+tile.place(road)
 city = pieces.City("name", tile)
 tile.place(city)
 
+tile = tile.qup
+road = pieces.Road(tile)
+tile.place(road)
+
+tile = board.tiles[2][5]
+player = Player()
+tile.owner = player
+road = pieces.Road(tile)
+tile.place(road)
+city = pieces.City("name", tile)
+tile.place(city)
 
 player_turns = cycle(Player.all)
 active_player = None
@@ -92,7 +100,7 @@ while running:
 
     # AI actions
     if active_player.is_ai:
-        end_turn()
+        start_turn()
 
     # Update game state here
     board.scroll_right(scroll_right)
