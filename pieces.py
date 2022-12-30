@@ -33,7 +33,8 @@ def find_tile_owners(board):
             influence = tile.influences[player]
             if influence > max_influence:
                 new_owner = player
-            if influence == max_influence:
+                max_influence = influence
+            elif influence == max_influence:
                 # tie
                 new_owner = tile.owner
         tile.owner = new_owner
@@ -128,9 +129,6 @@ class City(GamePiece):
             if n > 0:
                 tile.influences[self.owner] += n
 
-    def update(self, board):
-        find_tile_owners(board)
-
 
 class Road(GamePiece):
     def __init__(self, tile):
@@ -149,16 +147,14 @@ class Road(GamePiece):
         return piece_prices["path"]
 
     def add_influences(self, board):
+        self.tile.influences[self.tile.owner] += 1
         for tile in self.tile.neighbors:
             tile.influences[self.tile.owner] += 1
-
-    def update(self, board):
-        find_tile_owners(board)
 
     def get_sprite_id(self):
         return "road"
 
-    def update(self, board):
+    def update(self):
         self.rotations = []
         if Road in [type(p) for p in self.tile.qup.pieces]:
             self.rotations.append(0)

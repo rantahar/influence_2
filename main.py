@@ -5,6 +5,7 @@ from players import Player
 from pieces import City
 from board import Board
 from itertools import cycle
+from ui import TileWindow
 
 
 window_width = 800
@@ -30,9 +31,7 @@ tile.place(road)
 city = pieces.City("name", tile)
 tile.place(city)
 
-tile = tile.qup
-road = pieces.Road(tile)
-tile.place(road)
+tile.qup.place(pieces.Road(tile.qup))
 
 tile = board.tiles[2][5]
 player = Player()
@@ -69,6 +68,7 @@ end_turn_button = pygame_gui.elements.UIButton(
 )
 
 
+windows = []
 clock = pygame.time.Clock()
 running = True
 while running:
@@ -77,20 +77,32 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        consumed = ui_manager.process_events(event)
+
+        if consumed:
+            break
+
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == end_turn_button:
                 start_turn()
 
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONDOWN:
             position = pygame.mouse.get_pos()
 
             clicked_tile = board.check_tile_clicked(event.pos)
             if clicked_tile:
-                print("Tile clicked:", clicked_tile)
+                for window in windows:
+                    if type(window) == TileWindow:
+                        window.kill()
+                window = TileWindow(ui_manager, clicked_tile)
+                windows.append(window)
 
-
-        #window.check_events(event)
+        for window in windows:
+            window.check_events(event, active_player)
         ui_manager.process_events(event)
+
+
+    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, wood: {active_player.wood}")
 
     keys = pygame.key.get_pressed()
 

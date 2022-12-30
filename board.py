@@ -2,6 +2,7 @@ import pygame
 import math
 import random
 from sprites import map_sprites, piece_sprites
+import pieces
 
 
 class Hexagon:
@@ -101,6 +102,7 @@ class TileMap():
         )
         self.overlay_surface = pygame.Surface((self.board_width + window_width, self.board_height + window_height))
         self.overlay_surface.set_colorkey((0,0,0))
+        self.overlay_surface.fill((0,0,0))
         self.overlay_surface.set_alpha(100)
 
         # Create a 2D list to store the hexagon objects
@@ -144,6 +146,9 @@ class TileMap():
         screen.blit(self.surface, (0, 0), self.viewport)
         screen.blit(self.overlay_surface, (0, 0), self.viewport)
 
+    def clear(self):
+        self.overlay_surface.fill((0, 0, 0))
+
 
 class Tile:
     def __init__(self, x, y, board):
@@ -183,6 +188,10 @@ class Tile:
             (point[1] - self.hexagon.center_y)**2
         )
 
+    def get_absolute_position(self):
+        return (self.hexagon.center_x - self.board.viewport.x,
+                self.hexagon.center_y - self.board.viewport.y)
+
     def get_neighbour_closest_to_point(self, point):
         dist = self.distance_to_point(point)
         for nb in self.neighbors:
@@ -193,10 +202,11 @@ class Tile:
 
     def place(self, piece):
         self.pieces.append(piece)
-        piece.update(self.board)
+        piece.update()
         for tile in self.neighbors:
             for piece in tile.pieces:
-                piece.update(self.board)
+                piece.update()
+        pieces.find_tile_owners(self.board)
 
     def __str__(self):
         return f'({self.x}, {self.y})'
@@ -255,6 +265,7 @@ class Board:
         return None
 
     def draw(self, screen):
+        self.tileMap.clear()
         for x in range(self.cols):
             for y in range(self.rows):
                 tile = self.tiles[x][y]
