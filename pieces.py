@@ -97,7 +97,7 @@ class City(GamePiece):
 
     @classmethod
     def price(cls):
-        return piece_prices["vity"]
+        return piece_prices["city"]
 
     def get_owner(self):
         return self.owner

@@ -19,6 +19,12 @@ class TileWindow():
             container=self.window,
             manager=manager
         )
+        self.city_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((10, 80), (100, 50)),
+            text='City',
+            container=self.window,
+            manager=manager
+        )
 
     def if_clicked_inside(self, event):
         return self.window.check_clicked_inside_or_blocking(event)
@@ -31,4 +37,11 @@ class TileWindow():
             if event.ui_element == self.road_button:
                 self.tile.place(pieces.Road(self.tile))
                 player.food -= pieces.Road.price()["food"]
-
+            if event.ui_element == self.city_button:
+                self.tile.place(pieces.Road(self.tile))
+                self.tile.place(pieces.City("name", self.tile))
+                price = pieces.City.price()
+                for key in price:
+                    player.__setattr__(key,
+                        player.__getattribute__(key) - pieces.City.price()["food"]
+                    )
