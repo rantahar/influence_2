@@ -2,6 +2,16 @@ import itertools
 from players import Player
 
 
+piece_prices = {
+    "city": {
+        "food": 10,
+    },
+    "path": {
+        "food": 1
+    }
+}
+
+
 def find_influences(board):
     for tile in board.all_tiles:
         tile.influences = {}
@@ -37,6 +47,14 @@ class GamePiece():
         self.id = next(GamePiece.id_iterator)
         self.rotations = None
 
+    @classmethod
+    def can_build_at(cls, tile):
+        return False
+
+    @classmethod
+    def price(cls):
+        return {}
+
     def get_owner(self):
         return self.tile.owner
 
@@ -68,6 +86,17 @@ class City(GamePiece):
         self.level = level
         self.owner = tile.owner
         City.all.append(self)
+
+    @classmethod
+    def can_build_at(cls, tile):
+        for nb in tile.neighbors:
+            if Road in [type(p) for p in nb.pieces]:
+                return True
+        return False
+
+    @classmethod
+    def price(cls):
+        return piece_prices["vity"]
 
     def get_owner(self):
         return self.owner
@@ -107,6 +136,17 @@ class Road(GamePiece):
     def __init__(self, tile):
         super().__init__(tile)
         self.rotations = []
+
+    @classmethod
+    def can_build_at(cls, tile):
+        for nb in tile.neighbors:
+            if Road in [type(p) for p in nb.pieces]:
+                return True
+        return False
+
+    @classmethod
+    def price(cls):
+        return piece_prices["path"]
 
     def add_influences(self, board):
         for tile in self.tile.neighbors:
