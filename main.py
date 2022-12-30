@@ -81,6 +81,14 @@ while running:
             if event.ui_element == end_turn_button:
                 start_turn()
 
+        if event.type == pygame.MOUSEBUTTONUP:
+            position = pygame.mouse.get_pos()
+
+            clicked_tile = board.check_tile_clicked(event.pos)
+            if clicked_tile:
+                print("Tile clicked:", clicked_tile)
+
+
         #window.check_events(event)
         ui_manager.process_events(event)
 

@@ -12,6 +12,8 @@ class Hexagon:
         self.width = math.sqrt(3) * size
         self.height = 2 * size
 
+        self.rect = None
+
         # Calculate the vertices of the hexagon
         self.vertices = []
         for i in range(6):
@@ -20,13 +22,13 @@ class Hexagon:
             y = center_y + size * math.sin(angle)
             self.vertices.append((x, y))
 
-    def draw(self, screen, tile, debug=False):
+    def draw(self, screen, sprite, debug=False):
         # Draw the hexagon sprite on the screen
 
         # Scale and draw the tile image. Adjust the size a bit to remove
         # floating point caps
-        tile = pygame.transform.scale(tile, (self.width+2, self.height+2))
-        screen.blit(tile, (self.center_x - self.width//2-1, self.center_y - self.height//2-1))
+        sprite = pygame.transform.scale(sprite, (self.width+2, self.height+2))
+        self.rect = screen.blit(sprite, (self.center_x - self.width//2-1, self.center_y - self.height//2-1))
 
         # Draw the outline of the hexagon
         pygame.draw.polygon(screen, (0, 0, 0), self.vertices, 1)
@@ -156,6 +158,8 @@ class Tile:
         self.neighbors = None
         self.board = board
 
+        self.hexagon = self.board.tileMap.hex_grid[x][y]
+
         if y % 2 == 1:
             self.doubled_x = 2*x+1
         else:
@@ -172,6 +176,20 @@ class Tile:
         dx = abs(self.doubled_x - tile.doubled_x)
         dy = abs(self.y - tile.y)
         return dy + max(0, (dx-dy))/2
+
+    def distance_to_point(self, point):
+        return math.sqrt(
+            (point[0] - self.hexagon.center_x)**2 +
+            (point[1] - self.hexagon.center_y)**2
+        )
+
+    def get_neighbour_closest_to_point(self, point):
+        dist = self.distance_to_point(point)
+        for nb in self.neighbors:
+            d2 = nb.distance_to_point(point)
+            if d2 < dist:
+                return nb
+        return self
 
     def place(self, piece):
         self.pieces.append(piece)
@@ -225,6 +243,16 @@ class Board:
 
     def scroll_up(self, step):
         self.viewport.y -= step
+
+    def check_tile_clicked(self, mouse_position):
+        shifted_position = (
+            mouse_position[0] + self.viewport.x,
+            mouse_position[1] + self.viewport.y,
+        )
+        for tile in self.all_tiles:
+            if tile.hexagon.rect.collidepoint(shifted_position):
+                return tile.get_neighbour_closest_to_point(shifted_position)
+        return None
 
     def draw(self, screen):
         for x in range(self.cols):
