@@ -5,9 +5,11 @@ from players import Player
 piece_prices = {
     "city": {
         "food": 10,
+        "wood": 0,
     },
     "path": {
-        "food": 1
+        "food": 1,
+        "wood": 0
     }
 }
 
@@ -49,7 +51,7 @@ class GamePiece():
         self.rotations = None
 
     @classmethod
-    def can_build_at(cls, tile):
+    def can_build_at(cls, player, tile):
         return False
 
     @classmethod
@@ -89,11 +91,17 @@ class City(GamePiece):
         City.all.append(self)
 
     @classmethod
-    def can_build_at(cls, tile):
-        for nb in tile.neighbors:
-            if Road in [type(p) for p in nb.pieces]:
-                return True
-        return False
+    def can_build_at(cls, player, tile):
+        has_road = False
+        if player is tile.owner:
+            for nb in tile.neighbors:
+                if Road in [type(p) for p in nb.pieces]:
+                    has_road = True
+        if has_road:
+            for city in City.all:
+                if city.distance_to_tile(tile) < 3:
+                    return False
+        return has_road
 
     @classmethod
     def price(cls):
@@ -136,10 +144,14 @@ class Road(GamePiece):
         self.rotations = []
 
     @classmethod
-    def can_build_at(cls, tile):
+    def can_build_at(cls, player, tile):
+        if Road in [type(p) for p in tile.pieces]:
+            return False
+
         for nb in tile.neighbors:
-            if Road in [type(p) for p in nb.pieces]:
-                return True
+            if nb.owner is player:
+                if Road in [type(p) for p in nb.pieces]:
+                    return True
         return False
 
     @classmethod

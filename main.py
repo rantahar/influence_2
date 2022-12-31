@@ -94,7 +94,7 @@ while running:
                 for window in windows:
                     if type(window) == TileWindow:
                         window.kill()
-                window = TileWindow(ui_manager, clicked_tile)
+                window = TileWindow(ui_manager, clicked_tile, active_player)
                 windows.append(window)
 
         for window in windows:

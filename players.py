@@ -1,3 +1,4 @@
+import pieces
 
 player_colors = {
     "white": (255, 255, 255),
@@ -22,5 +23,19 @@ class Player():
 
         self.food = 0
         self.wood = 0
+
+    def build_road_at(self, tile):
+        price = pieces.Road.price()
+        if price["food"] < self.food:
+            tile.place(pieces.Road(tile))
+            self.food -= pieces.Road.price()["food"]
+
+    def build_city_at(self, tile):
+        price = pieces.City.price()
+        if price["food"] < self.food and price["wood"] < self.wood:
+            tile.place(pieces.Road(tile))
+            tile.place(pieces.City("name", tile))
+            self.food -= pieces.Road.price()["food"]
+            self.wood -= pieces.Road.price()["wood"]
 
 
