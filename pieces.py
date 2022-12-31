@@ -103,6 +103,10 @@ class City(GamePiece):
     def price(cls):
         return piece_prices["city"]
 
+    def upgrade(self):
+        self.level += 1
+        find_tile_owners(self.tile.board)
+
     def get_owner(self):
         return self.owner
 
