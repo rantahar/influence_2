@@ -92,11 +92,7 @@ class City(GamePiece):
 
     @classmethod
     def can_build_at(cls, player, tile):
-        has_road = False
-        if player is tile.owner:
-            for nb in tile.neighbors:
-                if Road in [type(p) for p in nb.pieces]:
-                    has_road = True
+        has_road = Road in [type(p) for p in tile.pieces]
         if has_road:
             for city in City.all:
                 if city.distance_to_tile(tile) < 3:
@@ -159,9 +155,10 @@ class Road(GamePiece):
         return piece_prices["path"]
 
     def add_influences(self, board):
-        self.tile.influences[self.tile.owner] += 1
-        for tile in self.tile.neighbors:
-            tile.influences[self.tile.owner] += 1
+        for nb in self.tile.neighbors:
+            if nb.owner is not None:
+                if Road in [type(p) for p in nb.pieces]:
+                    self.tile.influences[nb.owner] += 1
 
     def get_sprite_id(self):
         return "road"
