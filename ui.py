@@ -10,11 +10,11 @@ class TileWindow():
         self.road_button = None
         self.city_button = None
         self.upgrade_city_button = None
-        self.city = None
+        self.piece = None
 
-        has_city = pieces.City in [type(p) for p in tile.pieces]
-        if has_city:
-            self.init_city_window(manager, tile, player)
+        game_piece_window = any([p.show_game_piece_window for p in tile.pieces])
+        if game_piece_window:
+            self.init_game_piece_window(manager, tile, player)
         else:
             self.init_empty_tile_window(manager, tile, player)
 
@@ -39,15 +39,15 @@ class TileWindow():
                 manager=manager
             )
 
-    def init_city_window(self, manager, tile, player):
+    def init_game_piece_window(self, manager, tile, player):
         position = tile.get_absolute_position()
         self.window = pygame_gui.elements.UIWindow(
             rect=pygame.Rect(position, (160, 240)),
             manager=manager,
         )
-        self.city = [p for p in tile.pieces if type(p) is pieces.City][0]
-        if self.city.can_upgrade(player):
-            self.upgrade_city_button = pygame_gui.elements.UIButton(
+        self.piece = [p for p in tile.pieces if p.show_game_piece_window][0]
+        if self.piece.can_upgrade(player):
+            self.upgrade_button = pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect((10, 80), (100, 50)),
                 text='Upgrade',
                 container=self.window,
@@ -68,6 +68,6 @@ class TileWindow():
             if event.ui_element == self.city_button:
                 player.build_city_at(self.tile)
                 self.window.kill()
-            if event.ui_element == self.upgrade_city_button:
-                player.upgrade(self.city)
+            if event.ui_element == self.upgrade_button:
+                player.upgrade(self.piece)
                 self.window.kill()

@@ -49,6 +49,7 @@ class GamePiece():
         self.tile = tile
         self.id = next(GamePiece.id_iterator)
         self.rotations = None
+        self.show_game_piece_window = False
 
     @classmethod
     def can_build_at(cls, player, tile):
@@ -82,6 +83,9 @@ class GamePiece():
     def end_turn(self):
         pass
 
+    def can_upgrade(self, player):
+        return False
+
 
 class City(GamePiece):
     all = []
@@ -91,6 +95,7 @@ class City(GamePiece):
         self.name = name
         self.level = level
         self.owner = tile.owner
+        self.show_game_piece_window = True
         City.all.append(self)
 
     @classmethod
