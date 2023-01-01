@@ -48,7 +48,7 @@ def start_turn():
 
     # next player
     active_player = next(player_turns)
-    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, wood: {active_player.wood}")
+    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, tools: {active_player.tools}")
 
     # gather resources
     for city in City.all:
@@ -100,7 +100,7 @@ while running:
         ui_manager.process_events(event)
 
 
-    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, wood: {active_player.wood}")
+    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, tools: {active_player.tools}")
 
     keys = pygame.key.get_pressed()
 

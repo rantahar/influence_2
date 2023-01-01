@@ -9,7 +9,7 @@ class TileWindow():
         self.tile = tile
         self.road_button = None
         self.city_button = None
-        self.upgrade_city_button = None
+        self.upgrade_button = None
         self.piece = None
 
         game_piece_window = any([p.show_game_piece_window for p in tile.pieces])

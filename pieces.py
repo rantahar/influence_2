@@ -5,11 +5,11 @@ from players import Player
 piece_prices = {
     "city": {
         "food": 10,
-        "wood": 0,
+        "tools": 0,
     },
     "path": {
         "food": 1,
-        "wood": 0
+        "tools": 0
     }
 }
 
@@ -71,7 +71,7 @@ class GamePiece():
     def production(self):
         return {
             "food": 0,
-            "wood": 0
+            "tools": 0
         }
 
     def add_influences(self):
@@ -101,12 +101,16 @@ class City(GamePiece):
     @classmethod
     def can_build_at(cls, player, tile):
         if tile.owner == player:
-            has_road = Road in [type(p) for p in tile.pieces]
-            if has_road:
-                for city in City.all:
-                    if city.distance_to_tile(tile) < 3:
-                        return False
-            return has_road
+            #has_road = Road in [type(p) for p in tile.pieces]
+            #if has_road:
+            #    for city in City.all:
+            #        if city.distance_to_tile(tile) < 3:
+            #            return False
+            #return has_road
+            for city in City.all:
+                if city.distance_to_tile(tile) < 3:
+                    return False
+            return True
         return False
 
     @classmethod
@@ -131,15 +135,16 @@ class City(GamePiece):
 
     def collect_resources(self):
         if self.owner:
-            for nb_tile in self.tile.neighbors:
-                if nb_tile.land_type == "meadow":
-                    self.owner.food += 1
-                elif nb_tile.land_type == "forest":
-                    self.owner.wood += 1
+            for nb in self.tile.neighbors:
+                if nb.owner == self.owner:
+                    if nb.land_type == "meadow":
+                        self.owner.food += 1
+                    elif nb.land_type == "forest":
+                        self.owner.tools += 1
 
-                for piece in nb_tile.pieces:
-                    self.owner.food += piece.production()["food"]
-                    self.owner.wood += piece.production()["wood"]
+                    for piece in nb.pieces:
+                        self.owner.food += piece.production()["food"]
+                        self.owner.tools += piece.production()["tools"]
 
     def distance_to_tile(self, tile):
         return self.tile.distance_to(tile)

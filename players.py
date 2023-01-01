@@ -22,7 +22,7 @@ class Player():
         Player.all.append(self)
 
         self.food = 0
-        self.wood = 0
+        self.tools = 0
 
     def build_road_at(self, tile):
         price = pieces.Road.price()
@@ -34,11 +34,11 @@ class Player():
     def build_city_at(self, tile):
         price = pieces.City.price()
         print(price)
-        if price["food"] <= self.food and price["wood"] <= self.wood:
+        if price["food"] <= self.food and price["tools"] <= self.tools:
             tile.place(pieces.Road(tile))
             tile.place(pieces.City("name", tile))
             self.food -= pieces.City.price()["food"]
-            self.wood -= pieces.City.price()["wood"]
+            self.tools -= pieces.City.price()["tools"]
 
     def upgrade(self, city):
         price = 10*city.level
