@@ -46,12 +46,13 @@ class TileWindow():
             manager=manager,
         )
         self.city = [p for p in tile.pieces if type(p) is pieces.City][0]
-        self.upgrade_city_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((10, 80), (100, 50)),
-            text='Upgrade',
-            container=self.window,
-            manager=manager
-        )
+        if self.city.owner is player:
+            self.upgrade_city_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((10, 80), (100, 50)),
+                text='Upgrade',
+                container=self.window,
+                manager=manager
+            )
 
     def if_clicked_inside(self, event):
         return self.window.check_clicked_inside_or_blocking(event)
@@ -63,7 +64,10 @@ class TileWindow():
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == self.road_button:
                 player.build_road_at(self.tile)
+                self.window.kill()
             if event.ui_element == self.city_button:
                 player.build_city_at(self.tile)
+                self.window.kill()
             if event.ui_element == self.upgrade_city_button:
                 player.upgrade(self.city)
+                self.window.kill()
