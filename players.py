@@ -42,7 +42,7 @@ class Player():
 
     def upgrade(self, city):
         price = 10*city.level
-        if self.food > price:
+        if self.food >= price:
             self.food -= price
             city.upgrade()
 
