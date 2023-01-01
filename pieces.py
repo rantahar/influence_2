@@ -79,6 +79,9 @@ class GamePiece():
     def update(self):
         pass
 
+    def end_turn(self):
+        pass
+
 
 class City(GamePiece):
     all = []
@@ -104,6 +107,9 @@ class City(GamePiece):
     @classmethod
     def price(cls):
         return piece_prices["city"]
+
+    def can_upgrade(self, player):
+        return self.level < 5 and self.owner is player
 
     def upgrade(self):
         self.level += 1
@@ -138,6 +144,10 @@ class City(GamePiece):
             n = self.level - self.tile.distance_to(tile) + 1
             if n > 0:
                 tile.influences[self.owner] += n
+
+    def end_turn(self, player):
+        if (player is self.owner) and (self.owner is not self.tile.owner):
+            self.owner = self.tile.owner
 
 
 class Road(GamePiece):

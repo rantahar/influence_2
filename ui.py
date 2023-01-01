@@ -46,7 +46,7 @@ class TileWindow():
             manager=manager,
         )
         self.city = [p for p in tile.pieces if type(p) is pieces.City][0]
-        if self.city.owner is player:
+        if self.city.can_upgrade(player):
             self.upgrade_city_button = pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect((10, 80), (100, 50)),
                 text='Upgrade',

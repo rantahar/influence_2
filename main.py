@@ -31,8 +31,6 @@ tile.place(road)
 city = pieces.City("name", tile)
 tile.place(city)
 
-tile.qup.place(pieces.Road(tile.qup))
-
 tile = board.tiles[2][5]
 player = Player()
 tile.owner = player
