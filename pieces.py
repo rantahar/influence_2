@@ -92,12 +92,14 @@ class City(GamePiece):
 
     @classmethod
     def can_build_at(cls, player, tile):
-        has_road = Road in [type(p) for p in tile.pieces]
-        if has_road:
-            for city in City.all:
-                if city.distance_to_tile(tile) < 3:
-                    return False
-        return has_road
+        if tile.owner == player:
+            has_road = Road in [type(p) for p in tile.pieces]
+            if has_road:
+                for city in City.all:
+                    if city.distance_to_tile(tile) < 3:
+                        return False
+            return has_road
+        return False
 
     @classmethod
     def price(cls):
