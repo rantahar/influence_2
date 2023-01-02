@@ -9,6 +9,8 @@ class TileWindow():
         self.tile = tile
         self.road_button = None
         self.city_button = None
+        self.farm_button = None
+        self.woodlodge_button = None
         self.upgrade_button = None
         self.piece = None
 
@@ -21,7 +23,7 @@ class TileWindow():
     def init_empty_tile_window(self, manager, tile, player):
         position = tile.get_absolute_position()
         self.window = pygame_gui.elements.UIWindow(
-            rect=pygame.Rect(position, (160, 240)),
+            rect=pygame.Rect(position, (160, 320)),
             manager=manager,
         )
         if pieces.Road.can_build_at(player, tile):
@@ -38,6 +40,20 @@ class TileWindow():
                 container=self.window,
                 manager=manager
             )
+        if pieces.Farm.can_build_at(player, tile):
+            self.farm_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((10, 150), (100, 50)),
+                text='Farm',
+                container=self.window,
+                manager=manager
+            )
+        if pieces.WoodLodge.can_build_at(player, tile):
+            self.woodlodge_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((10, 220), (100, 50)),
+                text='Wood Cutters Lodge',
+                container=self.window,
+                manager=manager
+            )
 
     def init_game_piece_window(self, manager, tile, player):
         position = tile.get_absolute_position()
@@ -48,7 +64,7 @@ class TileWindow():
         self.piece = [p for p in tile.pieces if p.show_game_piece_window][0]
         if self.piece.can_upgrade(player):
             self.upgrade_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect((10, 80), (100, 50)),
+                relative_rect=pygame.Rect((10, 10), (100, 50)),
                 text='Upgrade',
                 container=self.window,
                 manager=manager
@@ -67,6 +83,12 @@ class TileWindow():
                 self.window.kill()
             if event.ui_element == self.city_button:
                 player.build_city_at(self.tile)
+                self.window.kill()
+            if event.ui_element == self.farm_button:
+                player.build_farm_at(self.tile)
+                self.window.kill()
+            if event.ui_element == self.woodlodge_button:
+                player.build_woodlodge_at(self.tile)
                 self.window.kill()
             if event.ui_element == self.upgrade_button:
                 player.upgrade(self.piece)

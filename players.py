@@ -41,6 +41,20 @@ class Player():
             tile.place(pieces.Road(tile))
             self.pay_resources(price)
 
+    def build_woodlodge_at(self, tile):
+        price = pieces.WoodLodge.price()
+        if self.can_afford(price):
+            tile.place(pieces.WoodLodge(tile))
+            self.pay_resources(price)
+
+    def build_farm_at(self, tile):
+        price = pieces.Farm.price()
+        print(self.resources)
+        print(price)
+        if self.can_afford(price):
+            tile.place(pieces.Farm(tile))
+            self.pay_resources(price)
+
     def build_city_at(self, tile):
         price = pieces.City.price()
         if self.can_afford(price):

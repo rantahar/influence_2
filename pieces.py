@@ -53,7 +53,12 @@ class GamePiece():
 
     @classmethod
     def can_build_at(cls, player, tile):
-        return False
+        if tile.owner is not player:
+            return False
+        for type in [type(p) for p in tile.pieces]:
+            if type is not Road:
+                return False
+        return True
 
     @classmethod
     def price(cls):
@@ -71,7 +76,7 @@ class GamePiece():
     def production(self):
         return {}
 
-    def add_influences(self):
+    def add_influences(self, board):
         pass
 
     def update(self):
@@ -116,9 +121,14 @@ class City(GamePiece):
 
     def upgrade_price(self):
         return {
-            "labor": 10*self.level,
+            "labor": 5*self.level,
             "food": self.level,
         }
+
+    def can_upgrade(self, player):
+        if player.can_afford(self.upgrade_price()):
+            return True
+        return False
 
     def upgrade(self):
         self.level += 1
@@ -135,7 +145,8 @@ class City(GamePiece):
 
     def production(self):
         return {
-            "labor": 1
+            "labor": self.level,
+            "food": 1-self.level
         }
 
     def distance_to_tile(self, tile):
@@ -195,5 +206,47 @@ class Road(GamePiece):
             self.rotations.append(240)
         if Road in [type(p) for p in self.tile.sdn.pieces]:
             self.rotations.append(60)
+
+
+class Farm(GamePiece):
+    def __init__(self, tile):
+        super().__init__(tile)
+
+    @classmethod
+    def can_build_at(cls, player, tile):
+        if tile.owner is player and tile.land_type == "meadow":
+            return True
+        return False
+
+    @classmethod
+    def price(cls):
+        return {"labor": 1}
+
+    def get_sprite_id(self):
+        return "farm"
+
+    def production(self):
+        return {"food": 1}
+
+
+class WoodLodge(GamePiece):
+    def __init__(self, tile):
+        super().__init__(tile)
+
+    @classmethod
+    def can_build_at(cls, player, tile):
+        if tile.owner is player and tile.land_type == "forest":
+            return True
+        return False
+
+    @classmethod
+    def price(cls):
+        return {"labor": 1}
+
+    def get_sprite_id(self):
+        return "woodlodge"
+
+    def production(self):
+        return {"labor": 1}
 
 

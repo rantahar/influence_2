@@ -45,6 +45,8 @@ piece_sprites = {
     "city4": piece_sprites[2][0],
     "city5": piece_sprites[2][1],
     "road": road_sprite,
+    "woodlodge": piece_sprites[5][3],
+    "farm": piece_sprites[6][6],
 }
 
 
