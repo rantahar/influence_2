@@ -26,6 +26,7 @@ textbox = pygame_gui.elements.UITextBox(
 tile = board.tiles[2][2]
 player = Player()
 tile.owner = player
+tile.land_type = "meadow"
 road = pieces.Road(tile)
 tile.place(road)
 city = pieces.City("name", tile)
@@ -34,6 +35,7 @@ tile.place(city)
 tile = board.tiles[2][5]
 player = Player()
 tile.owner = player
+tile.land_type = "meadow"
 road = pieces.Road(tile)
 tile.place(road)
 city = pieces.City("name", tile)
@@ -48,12 +50,20 @@ def start_turn():
 
     # next player
     active_player = next(player_turns)
-    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, tools: {active_player.tools}")
 
-    # gather resources
-    for city in City.all:
-        if city.owner is active_player:
-            city.collect_resources()
+    # count resources:
+    active_player.resources["labor"] = 0
+    active_player.resources["food"] = 0
+    for piece in pieces.GamePiece.all:
+        if piece.tile.owner is active_player:
+            production = piece.production()
+            for key in production.keys():
+                if key not in player.resources:
+                    active_player.resources[key] = production[key]
+                else:
+                    active_player.resources[key] += production[key]
+
+    textbox.set_text(f"player: {active_player.name}, labor: {active_player.resources['labor']}, food: {active_player.resources['food']}")
 
 
 start_turn()
@@ -100,7 +110,7 @@ while running:
         ui_manager.process_events(event)
 
 
-    textbox.set_text(f"player: {active_player.name},food: {active_player.food}, tools: {active_player.tools}")
+    textbox.set_text(f"player: {active_player.name}, labor: {active_player.resources['labor']}, food: {active_player.resources['food']}")
 
     keys = pygame.key.get_pressed()
 

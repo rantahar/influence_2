@@ -4,12 +4,10 @@ from players import Player
 
 piece_prices = {
     "city": {
-        "food": 10,
-        "tools": 0,
+        "labor": 10,
     },
     "path": {
-        "food": 1,
-        "tools": 0
+        "labor": 1,
     }
 }
 
@@ -43,11 +41,13 @@ def find_tile_owners(board):
 
 
 class GamePiece():
+    all = []
     id_iterator = itertools.count()
 
     def __init__(self, tile):
         self.tile = tile
         self.id = next(GamePiece.id_iterator)
+        GamePiece.all.append(self)
         self.rotations = None
         self.show_game_piece_window = False
 
@@ -69,10 +69,7 @@ class GamePiece():
         return "unknown"
 
     def production(self):
-        return {
-            "food": 0,
-            "tools": 0
-        }
+        return {}
 
     def add_influences(self):
         pass
@@ -117,8 +114,11 @@ class City(GamePiece):
     def price(cls):
         return piece_prices["city"]
 
-    def can_upgrade(self, player):
-        return self.level < 5 and self.owner is player
+    def upgrade_price(self):
+        return {
+            "labor": 10*self.level,
+            "food": self.level,
+        }
 
     def upgrade(self):
         self.level += 1
@@ -133,18 +133,10 @@ class City(GamePiece):
     def get_sprite_id(self):
         return "city"+str(self.level)
 
-    def collect_resources(self):
-        if self.owner:
-            for nb in self.tile.neighbors:
-                if nb.owner == self.owner:
-                    if nb.land_type == "meadow":
-                        self.owner.food += 1
-                    elif nb.land_type == "forest":
-                        self.owner.tools += 1
-
-                    for piece in nb.pieces:
-                        self.owner.food += piece.production()["food"]
-                        self.owner.tools += piece.production()["tools"]
+    def production(self):
+        return {
+            "labor": 1
+        }
 
     def distance_to_tile(self, tile):
         return self.tile.distance_to(tile)

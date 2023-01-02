@@ -21,29 +21,37 @@ class Player():
         next_color += 1
         Player.all.append(self)
 
-        self.food = 0
-        self.tools = 0
+        self.resources = {}
+
+    def can_afford(self, price):
+        for key in price.keys():
+            if key not in self.resources:
+                return False
+            if price[key] > self.resources[key]:
+                return False
+        return True
+
+    def pay_resources(self, price):
+        for key in price.keys():
+            self.resources[key] -= price[key]
 
     def build_road_at(self, tile):
         price = pieces.Road.price()
-        print(price)
-        if price["food"] <= self.food:
+        if self.can_afford(price):
             tile.place(pieces.Road(tile))
-            self.food -= pieces.Road.price()["food"]
+            self.pay_resources(price)
 
     def build_city_at(self, tile):
         price = pieces.City.price()
-        print(price)
-        if price["food"] <= self.food and price["tools"] <= self.tools:
+        if self.can_afford(price):
             tile.place(pieces.Road(tile))
             tile.place(pieces.City("name", tile))
-            self.food -= pieces.City.price()["food"]
-            self.tools -= pieces.City.price()["tools"]
+            self.pay_resources(price)
 
     def upgrade(self, city):
-        price = 10*city.level
-        if self.food >= price:
-            self.food -= price
+        price = city.upgrade_price()
+        if self.can_afford(price):
             city.upgrade()
+            self.pay_resources(price)
 
 
