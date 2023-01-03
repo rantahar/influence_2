@@ -48,6 +48,10 @@ active_player = None
 def start_turn():
     global active_player
 
+    for city in pieces.City.all:
+        if city.owner is active_player:
+            city.change_owner()
+
     # next player
     active_player = next(player_turns)
 
