@@ -1,5 +1,3 @@
-import pieces
-
 player_colors = {
     "white": (255, 255, 255),
     "red": (255, 0, 0),

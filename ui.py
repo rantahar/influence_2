@@ -1,6 +1,5 @@
 import pygame
 import pygame_gui
-
 import pieces
 
 
@@ -20,7 +19,7 @@ class TileWindow():
     def init_empty_tile_window(self, manager, tile, player):
         position = tile.get_absolute_position()
         self.window = pygame_gui.elements.UIWindow(
-            rect=pygame.Rect(position, (160, 320)),
+            rect=pygame.Rect(position, (260, 320)),
             manager=manager,
         )
         i = 0
@@ -28,12 +27,12 @@ class TileWindow():
             cls = pieces.piece_classes[key]
             if cls.can_build_at(player, tile):
                 self.buttons[key] = pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect((10, 60*i + 10), (100, 50)),
+                    relative_rect=pygame.Rect((10, 60*i + 10), (210, 50)),
                     text=cls.title,
                     container=self.window,
                     manager=manager
                 )
-                i+=1
+                i += 1
 
     def init_game_piece_window(self, manager, tile, player):
         position = tile.get_absolute_position()
