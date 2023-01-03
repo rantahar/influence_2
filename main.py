@@ -29,7 +29,7 @@ tile.owner = player
 tile.land_type = "meadow"
 road = pieces.Road(tile)
 tile.place(road)
-city = pieces.City("name", tile)
+city = pieces.City(tile)
 tile.place(city)
 
 tile = board.tiles[2][5]
@@ -38,7 +38,7 @@ tile.owner = player
 tile.land_type = "meadow"
 road = pieces.Road(tile)
 tile.place(road)
-city = pieces.City("name", tile)
+city = pieces.City(tile)
 tile.place(city)
 
 player_turns = cycle(Player.all)

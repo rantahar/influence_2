@@ -60,14 +60,7 @@ class TileWindow():
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             for key in self.buttons:
                 if event.ui_element == self.buttons[key]:
-                    if key == "road":
-                        player.build_road_at(self.tile)
-                    elif key == "city":
-                        player.build_city_at(self.tile)
-                    elif key == "farm":
-                        player.build_farm_at(self.tile)
-                    elif key == "woodlodge":
-                        player.build_woodlodge_at(self.tile)
+                    player.build_at(pieces.piece_classes[key], self.tile)
                     self.window.kill()
-                if event.ui_element == self.upgrade_button:
-                    player.upgrade(self.piece)
+            if event.ui_element == self.upgrade_button:
+                player.upgrade(self.piece)

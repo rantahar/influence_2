@@ -83,9 +83,9 @@ class City(GamePiece):
     all = []
     title = "City"
 
-    def __init__(self, name, tile, level=1):
+    def __init__(self, tile, level=1):
         super().__init__(tile)
-        self.name = name
+        self.name = "name"
         self.level = level
         self.owner = tile.owner
         self.show_game_piece_window = True

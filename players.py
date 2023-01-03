@@ -35,34 +35,14 @@ class Player():
         for key in price.keys():
             self.resources[key] -= price[key]
 
-    def build_road_at(self, tile):
-        price = pieces.Road.price()
+    def build_at(self, piece_class, tile):
+        price = piece_class.price()
         if self.can_afford(price):
-            tile.place(pieces.Road(tile))
-            self.pay_resources(price)
-
-    def build_woodlodge_at(self, tile):
-        price = pieces.WoodLodge.price()
-        if self.can_afford(price):
-            tile.place(pieces.WoodLodge(tile))
-            self.pay_resources(price)
-
-    def build_farm_at(self, tile):
-        price = pieces.Farm.price()
-        print(self.resources)
-        print(price)
-        if self.can_afford(price):
-            tile.place(pieces.Farm(tile))
-            self.pay_resources(price)
-
-    def build_city_at(self, tile):
-        price = pieces.City.price()
-        if self.can_afford(price):
-            tile.place(pieces.Road(tile))
-            tile.place(pieces.City("name", tile))
+            tile.place(piece_class(tile))
             self.pay_resources(price)
 
     def upgrade(self, city):
+        print("here")
         price = city.upgrade_price()
         if self.can_afford(price):
             city.upgrade()
