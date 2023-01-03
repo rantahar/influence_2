@@ -7,10 +7,7 @@ import pieces
 class TileWindow():
     def __init__(self, manager, tile, player):
         self.tile = tile
-        self.road_button = None
-        self.city_button = None
-        self.farm_button = None
-        self.woodlodge_button = None
+        self.buttons = {}
         self.upgrade_button = None
         self.piece = None
 
@@ -26,34 +23,17 @@ class TileWindow():
             rect=pygame.Rect(position, (160, 320)),
             manager=manager,
         )
-        if pieces.Road.can_build_at(player, tile):
-            self.road_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect((10, 10), (100, 50)),
-                text='Path',
-                container=self.window,
-                manager=manager
-            )
-        if pieces.City.can_build_at(player, tile):
-            self.city_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect((10, 80), (100, 50)),
-                text='City',
-                container=self.window,
-                manager=manager
-            )
-        if pieces.Farm.can_build_at(player, tile):
-            self.farm_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect((10, 150), (100, 50)),
-                text='Farm',
-                container=self.window,
-                manager=manager
-            )
-        if pieces.WoodLodge.can_build_at(player, tile):
-            self.woodlodge_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect((10, 220), (100, 50)),
-                text='Wood Cutters Lodge',
-                container=self.window,
-                manager=manager
-            )
+        i = 0
+        for key in pieces.piece_classes:
+            cls = pieces.piece_classes[key]
+            if cls.can_build_at(player, tile):
+                self.buttons[key] = pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect((10, 60*i + 10), (100, 50)),
+                    text=cls.title,
+                    container=self.window,
+                    manager=manager
+                )
+                i+=1
 
     def init_game_piece_window(self, manager, tile, player):
         position = tile.get_absolute_position()
@@ -78,18 +58,16 @@ class TileWindow():
 
     def check_events(self, event, player):
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            if event.ui_element == self.road_button:
-                player.build_road_at(self.tile)
-                self.window.kill()
-            if event.ui_element == self.city_button:
-                player.build_city_at(self.tile)
-                self.window.kill()
-            if event.ui_element == self.farm_button:
-                player.build_farm_at(self.tile)
-                self.window.kill()
-            if event.ui_element == self.woodlodge_button:
-                player.build_woodlodge_at(self.tile)
-                self.window.kill()
-            if event.ui_element == self.upgrade_button:
-                player.upgrade(self.piece)
-                self.window.kill()
+            for key in self.buttons:
+                if event.ui_element == self.buttons[key]:
+                    if key == "road":
+                        player.build_road_at(self.tile)
+                    elif key == "city":
+                        player.build_city_at(self.tile)
+                    elif key == "farm":
+                        player.build_farm_at(self.tile)
+                    elif key == "woodlodge":
+                        player.build_woodlodge_at(self.tile)
+                    self.window.kill()
+                if event.ui_element == self.upgrade_button:
+                    player.upgrade(self.piece)

@@ -2,16 +2,6 @@ import itertools
 from players import Player
 
 
-piece_prices = {
-    "city": {
-        "labor": 10,
-    },
-    "path": {
-        "labor": 1,
-    }
-}
-
-
 def find_influences(board):
     for tile in board.all_tiles:
         tile.influences = {}
@@ -91,6 +81,7 @@ class GamePiece():
 
 class City(GamePiece):
     all = []
+    title = "City"
 
     def __init__(self, name, tile, level=1):
         super().__init__(tile)
@@ -117,11 +108,11 @@ class City(GamePiece):
 
     @classmethod
     def price(cls):
-        return piece_prices["city"]
+        return {"labor": 10}
 
     def upgrade_price(self):
         return {
-            "labor": 5*self.level,
+            "labor": 10*self.level,
             "food": self.level,
         }
 
@@ -164,6 +155,8 @@ class City(GamePiece):
 
 
 class Road(GamePiece):
+    title = "Road"
+
     def __init__(self, tile):
         super().__init__(tile)
         self.rotations = []
@@ -181,7 +174,7 @@ class Road(GamePiece):
 
     @classmethod
     def price(cls):
-        return piece_prices["path"]
+        return {"labor": 1}
 
     def add_influences(self, board):
         for nb in self.tile.neighbors:
@@ -209,6 +202,8 @@ class Road(GamePiece):
 
 
 class Farm(GamePiece):
+    title = "Farm"
+
     def __init__(self, tile):
         super().__init__(tile)
 
@@ -230,6 +225,8 @@ class Farm(GamePiece):
 
 
 class WoodLodge(GamePiece):
+    title = "Wood Gatherer's Lodge"
+
     def __init__(self, tile):
         super().__init__(tile)
 
@@ -248,5 +245,17 @@ class WoodLodge(GamePiece):
 
     def production(self):
         return {"labor": 1}
+
+
+
+
+piece_classes = {
+    "city": City,
+    "road": Road,
+    "farm": Farm,
+    "woodlodge": WoodLodge,
+}
+
+
 
 
