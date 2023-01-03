@@ -117,6 +117,8 @@ class City(GamePiece):
         }
 
     def can_upgrade(self, player):
+        if self.get_owner() is not player:
+            return False
         if player.can_afford(self.upgrade_price()):
             return True
         return False

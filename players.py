@@ -35,15 +35,18 @@ class Player():
 
     def build_at(self, piece_class, tile):
         price = piece_class.price()
-        if self.can_afford(price):
+        if self.can_afford(price) and piece_class.can_build_at(self, tile):
             tile.place(piece_class(tile))
             self.pay_resources(price)
 
-    def upgrade(self, city):
-        print("here")
-        price = city.upgrade_price()
+    def upgrade(self, piece):
+        if piece.get_owner() is not self:
+            return False
+        price = piece.upgrade_price()
         if self.can_afford(price):
-            city.upgrade()
+            piece.upgrade()
             self.pay_resources(price)
+            return True
+        return False
 
 
