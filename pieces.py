@@ -45,8 +45,17 @@ class GamePiece():
     def can_build_at(cls, player, tile):
         if tile.owner is not player:
             return False
-        for type in [type(p) for p in tile.pieces]:
-            if type is not Road:
+        for piece_class in [type(p) for p in tile.pieces]:
+            if piece_class is not Road:
+                return False
+        return True
+
+    @classmethod
+    def can_finish_project(cls, player, tile):
+        if tile.owner is not player:
+            return False
+        for piece_class in [type(p) for p in tile.pieces]:
+            if piece_class is not Road and piece_class is not Project:
                 return False
         return True
 
@@ -94,13 +103,12 @@ class Project(GamePiece):
         return self.owner
 
     def progress(self, labor):
-        if not self.piece_class.can_build_at(self.owner, self.tile):
+        if not self.piece_class.can_finish_project(self.owner, self.tile):
             self.cancel()
             return labor
         if labor <= 0:
             return 0
         if labor >= self.work_left:
-            print(self.tile)
             self.tile.place(self.piece_class(self.tile))
             labor_left = labor - self.work_left
             self.cancel()
@@ -132,6 +140,8 @@ class City(GamePiece):
 
     @classmethod
     def can_build_at(cls, player, tile):
+        if not super().can_build_at(player, tile):
+            return False
         if tile.owner == player:
             for city in City.all:
                 if city.distance_to_tile(tile) < 3:
@@ -244,6 +254,8 @@ class Farm(GamePiece):
 
     @classmethod
     def can_build_at(cls, player, tile):
+        if not super().can_build_at(player, tile):
+            return False
         if tile.owner is player and tile.land_type == "meadow":
             return True
         return False
@@ -267,7 +279,9 @@ class WoodLodge(GamePiece):
 
     @classmethod
     def can_build_at(cls, player, tile):
-        if tile.owner is player and tile.land_type == "forest":
+        if not super().can_build_at(player, tile):
+            return False
+        if tile.land_type == "forest":
             return True
         return False
 
