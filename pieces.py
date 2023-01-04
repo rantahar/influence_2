@@ -79,6 +79,45 @@ class GamePiece():
         return False
 
 
+class Project(GamePiece):
+    title = "Building Project"
+    all = []
+
+    def __init__(self, tile, piece_class, work_left, player):
+        super().__init__(tile)
+        Project.all.append(self)
+        self.piece_class = piece_class
+        self.work_left = work_left
+        self.owner = player
+
+    def get_owner(self):
+        return self.owner
+
+    def progress(self, labor):
+        if not self.piece_class.can_build_at(self.owner, self.tile):
+            self.cancel()
+            return labor
+        if labor <= 0:
+            return 0
+        if labor >= self.work_left:
+            print(self.tile)
+            self.tile.place(self.piece_class(self.tile))
+            labor_left = labor - self.work_left
+            self.cancel()
+            return labor_left
+        else:
+            self.work_left -= labor
+            return 0
+
+    def cancel(self):
+        Project.all.remove(self)
+        self.tile.pieces.remove(self)
+        del self
+
+    def get_sprite_id(self):
+        return "project"
+
+
 class City(GamePiece):
     all = []
     title = "City"
@@ -94,12 +133,6 @@ class City(GamePiece):
     @classmethod
     def can_build_at(cls, player, tile):
         if tile.owner == player:
-            #has_road = Road in [type(p) for p in tile.pieces]
-            #if has_road:
-            #    for city in City.all:
-            #        if city.distance_to_tile(tile) < 3:
-            #            return False
-            #return has_road
             for city in City.all:
                 if city.distance_to_tile(tile) < 3:
                     return False

@@ -39,6 +39,7 @@ map_sprites = {
 
 piece_sprites = {
     'unknown': piece_sprites[5][6],
+    'project': piece_sprites[21][4],
     "city1": piece_sprites[1][0],
     "city2": piece_sprites[1][1],
     "city3": piece_sprites[1][2],

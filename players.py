@@ -1,3 +1,5 @@
+import pieces
+
 player_colors = {
     "white": (255, 255, 255),
     "red": (255, 0, 0),
@@ -23,10 +25,11 @@ class Player():
 
     def can_afford(self, price):
         for key in price.keys():
-            if key not in self.resources:
-                return False
-            if price[key] > self.resources[key]:
-                return False
+            if key != "labor":
+                if key not in self.resources:
+                    return False
+                if price[key] > self.resources[key]:
+                    return False
         return True
 
     def pay_resources(self, price):
@@ -35,9 +38,15 @@ class Player():
 
     def build_at(self, piece_class, tile):
         price = piece_class.price()
-        if self.can_afford(price) and piece_class.can_build_at(self, tile):
-            tile.place(piece_class(tile))
-            self.pay_resources(price)
+        if piece_class.can_build_at(self, tile) and self.can_afford(price):
+            if price["labor"] <= self.resources["labor"]:
+                tile.place(piece_class(tile))
+                self.pay_resources(price)
+            else:
+                labor_cost = price["labor"] - self.resources["labor"]
+                price["labor"] = self.resources["labor"]
+                self.pay_resources(price)
+                tile.place(pieces.Project(tile, piece_class, labor_cost, self))
 
     def upgrade(self, piece):
         if piece.get_owner() is not self:

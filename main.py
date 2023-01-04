@@ -2,7 +2,6 @@ import pygame
 import pygame_gui
 import pieces
 from players import Player
-from pieces import City
 from board import Board
 from itertools import cycle
 from ui import TileWindow
@@ -51,6 +50,7 @@ def start_turn():
     for city in pieces.City.all:
         if city.owner is active_player:
             city.change_owner()
+    pieces.find_tile_owners(board)
 
     # next player
     active_player = next(player_turns)
@@ -66,6 +66,13 @@ def start_turn():
                     active_player.resources[key] = production[key]
                 else:
                     active_player.resources[key] += production[key]
+
+    # Progress any ongoing projects
+    labor = active_player.resources["labor"]
+    for project in pieces.Project.all[:]:
+        if project.get_owner() is active_player:
+            labor = project.progress(labor)
+    active_player.resources["labor"] = labor
 
     textbox.set_text(f"player: {active_player.name}, labor: {active_player.resources['labor']}, food: {active_player.resources['food']}")
 
