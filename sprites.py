@@ -36,7 +36,7 @@ farm = load_tileset('assets/farm_2.png', 256, 256)[0][0]
 woodlodge = load_tileset('assets/woodlodge_2.png', 256, 256)[0][0]
 flag = load_tileset('assets/project_1.png', 256, 256)[0][0]
 
-grass_sprite = load_tileset('assets/grass_1.png', 340, 320)[0][0]
+grass_sprite = load_tileset('assets/grass_2.png', 340, 320)[0][0]
 forest_sprite = load_tileset('assets/forest_2.png', 340, 320)[0][0]
 mountain_sprite = load_tileset('assets/mountain_1.png', 340, 320)[0][0]
 

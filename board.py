@@ -37,7 +37,7 @@ class Hexagon:
     def draw_piece(self, screen, piece):
         sprite = piece_sprites[piece.get_sprite_id()]
         if piece.rotations is None:
-            size = self.width*3//5
+            size = self.width
             sprite = pygame.transform.scale(sprite, (size, size))
             screen.blit(sprite, (self.center_x-size//2, self.center_y-size//2))
         else:
