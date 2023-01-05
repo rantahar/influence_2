@@ -170,7 +170,9 @@ class Tile:
         else:
             self.doubled_x = 2*x
 
-        self.land_type = random.choice(['forest', 'meadow'])
+        self.land_type = random.choice(
+            ['forest', 'forest', 'meadow', 'meadow', 'mountain']
+        )
 
         self.owner = None
         self.influences = {}

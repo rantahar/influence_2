@@ -28,26 +28,35 @@ def load_tileset(filename, tile_height, tile_width):
     return tiles
 
 
-piece_sprites = load_tileset("assets/Toens_Medieval_Strategy_Sprite_Pack/tileset.png", 16, 16)
-land_sprites = load_tileset('assets/elite_command_art_terrain/tileset.png', 34, 32)[0]
 road_sprite = load_tileset('assets/roads.png', 34, 32)[0][0]
 
+city_1 = load_tileset('assets/town_1_1.png', 256, 256)[0][0]
+city_2 = load_tileset('assets/town_2_1.png', 256, 256)[0][0]
+farm = load_tileset('assets/farm_2.png', 256, 256)[0][0]
+woodlodge = load_tileset('assets/woodlodge_2.png', 256, 256)[0][0]
+flag = load_tileset('assets/project_1.png', 256, 256)[0][0]
+
+grass_sprite = load_tileset('assets/grass_1.png', 340, 320)[0][0]
+forest_sprite = load_tileset('assets/forest_2.png', 340, 320)[0][0]
+mountain_sprite = load_tileset('assets/mountain_1.png', 340, 320)[0][0]
+
 map_sprites = {
-    'forest': land_sprites[3],
-    'meadow': land_sprites[0]
+    'forest': forest_sprite,
+    'meadow': grass_sprite,
+    'mountain': mountain_sprite,
 }
 
 piece_sprites = {
-    'unknown': piece_sprites[5][6],
-    'project': piece_sprites[21][4],
-    "city1": piece_sprites[1][0],
-    "city2": piece_sprites[1][1],
-    "city3": piece_sprites[1][2],
-    "city4": piece_sprites[2][0],
-    "city5": piece_sprites[2][1],
+    'unknown': flag,
+    'project': flag,
+    "city1": city_1,
+    "city2": city_2,
+    "city3": city_2,
+    "city4": city_2,
+    "city5": city_2,
     "road": road_sprite,
-    "woodlodge": piece_sprites[5][3],
-    "farm": piece_sprites[6][6],
+    "woodlodge": woodlodge,
+    "farm": farm,
 }
 
 
