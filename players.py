@@ -40,16 +40,13 @@ class Player():
         price = piece_class.price()
         if piece_class.can_build_at(self, tile) and self.can_afford(price):
             if price["labor"] <= self.resources["labor"]:
-                piece = piece_class(tile)
-                tile.place(piece)
+                piece = piece_class(tile, self)
                 self.pay_resources(price)
-                if piece_class == pieces.Road:
-                    piece.owner = self
             else:
                 labor_cost = price["labor"] - self.resources["labor"]
                 price["labor"] = self.resources["labor"]
                 self.pay_resources(price)
-                tile.place(pieces.Project(tile, piece_class, labor_cost, self))
+                pieces.Project(tile, piece_class, labor_cost, self)
 
     def upgrade(self, piece):
         if not piece.can_upgrade(self):

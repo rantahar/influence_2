@@ -34,12 +34,12 @@ class GamePiece():
     all = []
     id_iterator = itertools.count()
 
-    def __init__(self, tile):
+    def __init__(self, tile, player):
         self.tile = tile
         self.id = next(GamePiece.id_iterator)
-        GamePiece.all.append(self)
         self.rotations = None
         self.show_game_piece_window = False
+        GamePiece.all.append(self)
 
     @classmethod
     def can_build_at(cls, player, tile):
@@ -91,11 +91,12 @@ class Project(GamePiece):
     all = []
 
     def __init__(self, tile, piece_class, work_left, player):
-        super().__init__(tile)
+        super().__init__(tile, player)
         Project.all.append(self)
         self.piece_class = piece_class
         self.work_left = work_left
         self.owner = player
+        self.tile.place(self)
 
     def get_owner(self):
         return self.owner
@@ -107,7 +108,7 @@ class Project(GamePiece):
         if labor <= 0:
             return 0
         if labor >= self.work_left:
-            self.tile.place(self.piece_class(self.tile))
+            self.tile.place(self.piece_class(self.tile, self.owner))
             labor_left = labor - self.work_left
             self.cancel()
             return labor_left
@@ -128,14 +129,17 @@ class City(GamePiece):
     all = []
     title = "City"
 
-    def __init__(self, tile, level=1):
-        super().__init__(tile)
+    def __init__(self, tile, player, level=1):
+        super().__init__(tile, player)
         self.name = "name"
         self.level = level
-        self.owner = tile.owner
-        self.show_game_piece_window = True
+        self.owner = player
         self.queue = {}
+        if Road not in [type(p) for p in tile.pieces]:
+            Road(tile, player)
+        self.show_game_piece_window = True
         City.all.append(self)
+        self.tile.place(self)
 
     @classmethod
     def can_build_at(cls, player, tile):
@@ -207,10 +211,12 @@ class City(GamePiece):
         return "city"+str(self.level)
 
     def production(self):
-        upgrade_queued = "upgrade" in [q[0] for q in self.queue]
+        upgrade_queued = "upgrade" in self.queue.keys()
+        food_level = self.level + upgrade_queued
+        food_consumption = food_level*(food_level-1)//2
         return {
             "labor": self.level,
-            "food": 1 - self.level - upgrade_queued
+            "food": -food_consumption
         }
 
     def distance_to_tile(self, tile):
@@ -230,10 +236,11 @@ class City(GamePiece):
 class Road(GamePiece):
     title = "Road"
 
-    def __init__(self, tile):
-        super().__init__(tile)
+    def __init__(self, tile, player):
+        super().__init__(tile, player)
+        self.owner = player
         self.rotations = []
-        self.owner = None
+        self.tile.place(self)
 
     @classmethod
     def can_build_at(cls, player, tile):
@@ -243,7 +250,6 @@ class Road(GamePiece):
         for nb in tile.neighbors:
             for piece in nb.pieces:
                 if type(piece) is Road:
-                    print("road can build", piece.get_owner())
                     if nb.owner is player or piece.get_owner() is player:
                         return True
         return False
@@ -251,12 +257,6 @@ class Road(GamePiece):
     @classmethod
     def price(cls):
         return {"labor": 1}
-
-    #def add_influences(self, board):
-    #    for nb in self.tile.neighbors:
-    #        if nb.owner is not None:
-    #            if Road in [type(p) for p in nb.pieces]:
-    #                self.tile.influences[nb.owner] += 1
 
     def get_sprite_id(self):
         return "road"
@@ -283,8 +283,9 @@ class Road(GamePiece):
 class Farm(GamePiece):
     title = "Farm"
 
-    def __init__(self, tile):
-        super().__init__(tile)
+    def __init__(self, tile, player):
+        super().__init__(tile, player)
+        self.tile.place(self)
 
     @classmethod
     def can_build_at(cls, player, tile):
@@ -308,8 +309,9 @@ class Farm(GamePiece):
 class WoodLodge(GamePiece):
     title = "Wood Gatherer's Lodge"
 
-    def __init__(self, tile):
-        super().__init__(tile)
+    def __init__(self, tile, player):
+        super().__init__(tile, player)
+        self.tile.place(self)
 
     @classmethod
     def can_build_at(cls, player, tile):
