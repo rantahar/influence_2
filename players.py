@@ -21,7 +21,7 @@ class Player():
         next_color += 1
         Player.all.append(self)
 
-        self.resources = {}
+        self.resources = {"labor": 0, "food": 0}
 
     def can_afford(self, price):
         for key in price.keys():
@@ -49,11 +49,14 @@ class Player():
                 tile.place(pieces.Project(tile, piece_class, labor_cost, self))
 
     def upgrade(self, piece):
-        if piece.get_owner() is not self:
+        if not piece.can_upgrade(self):
             return False
         price = piece.upgrade_price()
         if self.can_afford(price):
-            piece.upgrade()
+            labor = self.resources["labor"]
+            piece.queue_upgrade()
+            self.resources["labor"] = piece.check_queue(labor)
+            price["labor"] = 0
             self.pay_resources(price)
             return True
         return False

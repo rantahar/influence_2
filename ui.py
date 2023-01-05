@@ -63,3 +63,4 @@ class TileWindow():
                     self.window.kill()
             if event.ui_element == self.upgrade_button:
                 player.upgrade(self.piece)
+                self.window.kill()

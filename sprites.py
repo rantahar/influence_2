@@ -32,8 +32,8 @@ road_sprite = load_tileset('assets/roads.png', 34, 32)[0][0]
 
 city_1 = load_tileset('assets/town_1_1.png', 256, 256)[0][0]
 city_2 = load_tileset('assets/town_2_1.png', 256, 256)[0][0]
-farm = load_tileset('assets/farm_2.png', 256, 256)[0][0]
-woodlodge = load_tileset('assets/woodlodge_2.png', 256, 256)[0][0]
+farm = load_tileset('assets/farm_1.png', 256, 256)[0][0]
+woodlodge = load_tileset('assets/woodlodge_1.png', 256, 256)[0][0]
 flag = load_tileset('assets/project_1.png', 256, 256)[0][0]
 
 grass_sprite = load_tileset('assets/grass_2.png', 340, 320)[0][0]
@@ -50,8 +50,8 @@ piece_sprites = {
     'unknown': flag,
     'project': flag,
     "city1": city_1,
-    "city2": city_2,
-    "city3": city_2,
+    "city2": city_1,
+    "city3": city_1,
     "city4": city_2,
     "city5": city_2,
     "road": road_sprite,

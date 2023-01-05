@@ -136,6 +136,7 @@ class City(GamePiece):
         self.level = level
         self.owner = tile.owner
         self.show_game_piece_window = True
+        self.queue = {}
         City.all.append(self)
 
     @classmethod
@@ -160,11 +161,35 @@ class City(GamePiece):
         }
 
     def can_upgrade(self, player):
+        if "upgrade" in self.queue.keys():
+            return False
         if self.get_owner() is not player:
             return False
         if player.can_afford(self.upgrade_price()):
             return True
         return False
+
+    def queue_upgrade(self):
+        self.queue_building(
+            "upgrade",
+            self.upgrade_price()["labor"],
+            self.upgrade
+        )
+
+    def queue_building(self, name, labor, finish_function):
+        self.queue[name] = [labor, finish_function]
+
+    def check_queue(self, labor):
+        for project in list(self.queue.keys()):
+            cost = self.queue[project][0]
+            if cost > labor:
+                self.queue[project][0] -= labor
+                labor = 0
+            else:
+                labor -= cost
+                self.queue[project][1]()
+                del self.queue[project]
+        return labor
 
     def upgrade(self):
         self.level += 1
@@ -180,9 +205,10 @@ class City(GamePiece):
         return "city"+str(self.level)
 
     def production(self):
+        upgrade_queued = "upgrade" in [q[0] for q in self.queue]
         return {
             "labor": self.level,
-            "food": 1-self.level
+            "food": 1 - self.level - upgrade_queued
         }
 
     def distance_to_tile(self, tile):
