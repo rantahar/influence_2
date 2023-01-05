@@ -52,8 +52,6 @@ class GamePiece():
 
     @classmethod
     def can_finish_project(cls, player, tile):
-        if tile.owner is not player:
-            return False
         for piece_class in [type(p) for p in tile.pieces]:
             if piece_class is not Road and piece_class is not Project:
                 return False
@@ -141,9 +139,13 @@ class City(GamePiece):
 
     @classmethod
     def can_build_at(cls, player, tile):
-        if not super().can_build_at(player, tile):
-            return False
-        if tile.owner == player:
+        on_road = False
+        for piece in tile.pieces:
+            if type(piece) is not Road:
+                return False
+            if type(piece) is Road and piece.owner is player:
+                on_road = True
+        if on_road or tile.owner == player:
             for city in City.all:
                 if city.distance_to_tile(tile) < 3:
                     return False
@@ -231,6 +233,7 @@ class Road(GamePiece):
     def __init__(self, tile):
         super().__init__(tile)
         self.rotations = []
+        self.owner = None
 
     @classmethod
     def can_build_at(cls, player, tile):
@@ -238,23 +241,28 @@ class Road(GamePiece):
             return False
 
         for nb in tile.neighbors:
-            if nb.owner is player:
-                if Road in [type(p) for p in nb.pieces]:
-                    return True
+            for piece in nb.pieces:
+                if type(piece) is Road:
+                    print("road can build", piece.get_owner())
+                    if nb.owner is player or piece.get_owner() is player:
+                        return True
         return False
 
     @classmethod
     def price(cls):
         return {"labor": 1}
 
-    def add_influences(self, board):
-        for nb in self.tile.neighbors:
-            if nb.owner is not None:
-                if Road in [type(p) for p in nb.pieces]:
-                    self.tile.influences[nb.owner] += 1
+    #def add_influences(self, board):
+    #    for nb in self.tile.neighbors:
+    #        if nb.owner is not None:
+    #            if Road in [type(p) for p in nb.pieces]:
+    #                self.tile.influences[nb.owner] += 1
 
     def get_sprite_id(self):
         return "road"
+
+    def get_owner(self):
+        return self.owner
 
     def update(self):
         self.rotations = []

@@ -40,8 +40,11 @@ class Player():
         price = piece_class.price()
         if piece_class.can_build_at(self, tile) and self.can_afford(price):
             if price["labor"] <= self.resources["labor"]:
-                tile.place(piece_class(tile))
+                piece = piece_class(tile)
+                tile.place(piece)
                 self.pay_resources(price)
+                if piece_class == pieces.Road:
+                    piece.owner = self
             else:
                 labor_cost = price["labor"] - self.resources["labor"]
                 price["labor"] = self.resources["labor"]
