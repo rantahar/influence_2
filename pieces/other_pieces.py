@@ -53,7 +53,7 @@ class GamePiece():
     def end_turn(self):
         pass
 
-    def can_upgrade(self, player, name):
+    def can_upgrade(self, name):
         return False
 
     def get_upgrades(self):

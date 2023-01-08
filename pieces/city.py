@@ -87,9 +87,7 @@ class City(GamePiece):
         buildings["upgrade"] = upgrade
         return buildings
 
-    def can_upgrade(self, player, name):
-        if self.get_owner() is not player:
-            return False
+    def can_upgrade(self, name):
         if name in self._queue.keys():
             return False
         if name in self.built:
@@ -104,9 +102,7 @@ class City(GamePiece):
                     return False
             elif require not in self.built:
                 return False
-        if player.can_afford(upgrades[name]["price"]):
-            return True
-        return False
+        return True
 
     def queue(self, building):
         upgrades = self.get_upgrades()
@@ -136,7 +132,6 @@ class City(GamePiece):
                 if not upgrade["multiple"]:
                     self.built.append(name)
             grants = upgrade["grants"]
-            print(grants)
             if "level" in grants.keys():
                 self.level += grants["level"]
         find_tile_owners(self.tile.board)

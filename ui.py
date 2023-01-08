@@ -37,21 +37,23 @@ class TileWindow():
     def init_game_piece_window(self, manager, tile, player):
         position = tile.get_absolute_position()
         self.window = pygame_gui.elements.UIWindow(
-            rect=pygame.Rect(position, (160, 240)),
+            rect=pygame.Rect(position, (260, 320)),
             manager=manager,
         )
         self.piece = [p for p in tile.pieces if p.show_game_piece_window][0]
         upgrades = self.piece.get_upgrades()
         i = 0
-        for key in upgrades.keys():
-            if self.piece.can_upgrade(player, key):
-                self.upgrade_buttons[key] = pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect((10, 60*i + 10), (210, 50)),
-                    text=key,
-                    container=self.window,
-                    manager=manager
-                )
-                i += 1
+        if self.piece.get_owner() is player:
+            for key in upgrades.keys():
+                price = upgrades[key]["price"]
+                if player.can_afford(price) and self.piece.can_upgrade(key):
+                    self.upgrade_buttons[key] = pygame_gui.elements.UIButton(
+                        relative_rect=pygame.Rect((10, 60*i + 10), (210, 50)),
+                        text=key,
+                        container=self.window,
+                        manager=manager
+                    )
+                    i += 1
 
     def if_clicked_inside(self, event):
         return self.window.check_clicked_inside_or_blocking(event)

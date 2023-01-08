@@ -49,7 +49,7 @@ class Player():
                 pieces.Project(tile, piece_class, labor_cost, self)
 
     def upgrade(self, piece, name):
-        if not piece.can_upgrade(self, name):
+        if not piece.can_upgrade(name):
             return False
         upgrades = piece.get_upgrades()
         if name in upgrades.keys():
