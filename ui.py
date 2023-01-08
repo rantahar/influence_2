@@ -7,7 +7,7 @@ class TileWindow():
     def __init__(self, manager, tile, player):
         self.tile = tile
         self.buttons = {}
-        self.upgrade_button = None
+        self.upgrade_buttons = {}
         self.piece = None
 
         game_piece_window = any([p.show_game_piece_window for p in tile.pieces])
@@ -41,13 +41,17 @@ class TileWindow():
             manager=manager,
         )
         self.piece = [p for p in tile.pieces if p.show_game_piece_window][0]
-        if self.piece.can_upgrade(player):
-            self.upgrade_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect((10, 10), (100, 50)),
-                text='Upgrade',
-                container=self.window,
-                manager=manager
-            )
+        upgrades = self.piece.get_upgrades()
+        i = 0
+        for key in upgrades.keys():
+            if self.piece.can_upgrade(player, key):
+                self.upgrade_buttons[key] = pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect((10, 60*i + 10), (210, 50)),
+                    text=key,
+                    container=self.window,
+                    manager=manager
+                )
+                i += 1
 
     def if_clicked_inside(self, event):
         return self.window.check_clicked_inside_or_blocking(event)
@@ -61,6 +65,7 @@ class TileWindow():
                 if event.ui_element == self.buttons[key]:
                     player.build_at(pieces.piece_classes[key], self.tile)
                     self.window.kill()
-            if event.ui_element == self.upgrade_button:
-                player.upgrade(self.piece)
-                self.window.kill()
+            for key in self.upgrade_buttons:
+                if event.ui_element == self.upgrade_buttons[key]:
+                    player.upgrade(self.piece, key)
+                    self.window.kill()

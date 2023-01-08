@@ -53,8 +53,14 @@ class GamePiece():
     def end_turn(self):
         pass
 
-    def can_upgrade(self, player):
+    def can_upgrade(self, player, name):
         return False
+
+    def get_upgrades(self):
+        return {}
+
+    def check_queue(self, labor):
+        return labor
 
 
 class Project(GamePiece):

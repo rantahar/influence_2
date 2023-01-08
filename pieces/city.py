@@ -25,7 +25,7 @@ def find_tile_owners(board):
                 new_owner = player
                 max_influence = influence
             elif influence == max_influence:
-                # tie
+                # Tie. Even if the old owner has less, they keep it.
                 new_owner = tile.owner
         tile.owner = new_owner
 
@@ -33,13 +33,21 @@ def find_tile_owners(board):
 class City(GamePiece):
     all = []
     title = "City"
+    buildings = {
+        "Ditch": {
+            "requires": {"city_level": 2},
+            "price": {"labor": 5},
+            "grants": {"defence": 1},
+        }
+    }
 
     def __init__(self, tile, player, level=1):
         super().__init__(tile, player)
         self.name = "name"
         self.level = level
         self.owner = player
-        self.queue = {}
+        self._queue = {}
+        self.built = []
         if Road not in [type(p) for p in tile.pieces]:
             Road(tile, player)
         self.show_game_piece_window = True
@@ -65,45 +73,72 @@ class City(GamePiece):
     def price(cls):
         return {"labor": 10}
 
-    def upgrade_price(self):
-        return {
-            "labor": 10*self.level,
-            "food": self.level,
+    def get_upgrades(self):
+        upgrade = {
+            "requires": {},
+            "description": "Increase city population.",
+            "price": {
+                "labor": 10*self.level,
+                "food": self.level
+            },
+            "grants": {"level": 1}
         }
+        buildings = City.buildings.copy()
+        buildings["upgrade"] = upgrade
+        return buildings
 
-    def can_upgrade(self, player):
-        if "upgrade" in self.queue.keys():
-            return False
+    def can_upgrade(self, player, name):
         if self.get_owner() is not player:
             return False
-        if player.can_afford(self.upgrade_price()):
+        if name in self._queue.keys():
+            return False
+        if name in self.built:
+            return False
+        upgrades = self.get_upgrades()
+        if name not in upgrades.keys():
+            return False
+        for r in upgrades[name]["requires"].keys():
+            require = upgrades[name]["requires"][r]
+            if r == "level":
+                if require > self.level:
+                    return False
+            elif require not in self.built:
+                return False
+        if player.can_afford(upgrades[name]["price"]):
             return True
         return False
 
-    def queue_upgrade(self):
-        self.queue_building(
-            "upgrade",
-            self.upgrade_price()["labor"],
-            self.upgrade
-        )
-
-    def queue_building(self, name, labor, finish_function):
-        self.queue[name] = [labor, finish_function]
+    def queue(self, building):
+        upgrades = self.get_upgrades()
+        if building in upgrades.keys() and building not in self._queue and building not in self.built:
+            upgrade = upgrades[building]
+            price = upgrade["price"]
+            self._queue[building] = [price["labor"], building]
 
     def check_queue(self, labor):
-        for project in list(self.queue.keys()):
-            cost = self.queue[project][0]
+        for p in list(self._queue.keys()):
+            project = self._queue[p]
+            cost = project[0]
             if cost > labor:
-                self.queue[project][0] -= labor
+                project[0] -= labor
                 labor = 0
             else:
                 labor -= cost
-                self.queue[project][1]()
-                del self.queue[project]
+                self.build_upgrade(project[1])
+                del self._queue[p]
         return labor
 
-    def upgrade(self):
-        self.level += 1
+    def build_upgrade(self, name):
+        upgrades = self.get_upgrades()
+        if name in upgrades:
+            upgrade = upgrades[name]
+            if "multiple" in upgrade.keys():
+                if not upgrade["multiple"]:
+                    self.built.append(name)
+            grants = upgrade["grants"]
+            print(grants)
+            if "level" in grants.keys():
+                self.level += grants["level"]
         find_tile_owners(self.tile.board)
 
     def get_owner(self):
@@ -116,7 +151,7 @@ class City(GamePiece):
         return "city"+str(self.level)
 
     def production(self):
-        upgrade_queued = "upgrade" in self.queue.keys()
+        upgrade_queued = "upgrade" in self._queue.keys()
         food_level = self.level + upgrade_queued
         food_consumption = food_level*(food_level-1)//2
         return {

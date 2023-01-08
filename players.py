@@ -40,7 +40,7 @@ class Player():
         price = piece_class.price()
         if piece_class.can_build_at(self, tile) and self.can_afford(price):
             if price["labor"] <= self.resources["labor"]:
-                piece = piece_class(tile, self)
+                piece_class(tile, self)
                 self.pay_resources(price)
             else:
                 labor_cost = price["labor"] - self.resources["labor"]
@@ -48,17 +48,20 @@ class Player():
                 self.pay_resources(price)
                 pieces.Project(tile, piece_class, labor_cost, self)
 
-    def upgrade(self, piece):
-        if not piece.can_upgrade(self):
+    def upgrade(self, piece, name):
+        if not piece.can_upgrade(self, name):
             return False
-        price = piece.upgrade_price()
-        if self.can_afford(price):
-            labor = self.resources["labor"]
-            piece.queue_upgrade()
-            self.resources["labor"] = piece.check_queue(labor)
-            price["labor"] = 0
-            self.pay_resources(price)
-            return True
+        upgrades = piece.get_upgrades()
+        if name in upgrades.keys():
+            upgrade = upgrades[name]
+            price = upgrade["price"]
+            if self.can_afford(price):
+                piece.queue(name)
+                labor = self.resources["labor"]
+                self.resources["labor"] = piece.check_queue(labor)
+                price["labor"] = 0
+                self.pay_resources(price)
+                return True
         return False
 
 
