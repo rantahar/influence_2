@@ -1,4 +1,4 @@
-from other_pieces import GamePiece, Road
+from .other_pieces import GamePiece, Road
 from players import Player
 
 
