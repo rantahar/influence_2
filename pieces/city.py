@@ -70,6 +70,20 @@ class City(GamePiece):
         return False
 
     @classmethod
+    def ai_can_build_with_road(cls, player, tile):
+        for piece in tile.pieces:
+            if type(piece) is not Road:
+                return False
+        if not Road.can_build_at(player, tile):
+            return False
+        if tile.owner is None or tile.owner is player:
+            for city in City.all:
+                if city.distance_to_tile(tile) < 3:
+                    return False
+            return True
+        return False
+
+    @classmethod
     def price(cls):
         return {"labor": 10}
 
@@ -143,6 +157,8 @@ class City(GamePiece):
         self.owner = self.tile.owner
 
     def get_sprite_id(self):
+        if self.level > 4:
+            return "city5"
         return "city"+str(self.level)
 
     def production(self):

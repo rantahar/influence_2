@@ -1,7 +1,7 @@
 import pygame
 import pygame_gui
 import pieces
-from players import Player
+from players import Player, AIPlayer
 from board import Board
 from itertools import cycle
 from ui import TileWindow
@@ -29,7 +29,7 @@ tile.land_type = "meadow"
 city = pieces.City(tile, player)
 
 tile = board.tiles[2][5]
-player = Player()
+player = AIPlayer()
 tile.owner = player
 tile.land_type = "meadow"
 city = pieces.City(tile, player)
@@ -135,6 +135,7 @@ while running:
 
     # AI actions
     if active_player.is_ai:
+        active_player.take_turn(board)
         start_turn()
 
     # Update game state here
