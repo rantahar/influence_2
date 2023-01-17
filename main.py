@@ -67,7 +67,8 @@ def start_turn():
         if project.get_owner() is active_player:
             labor = project.progress(labor)
     for city in pieces.City.all:
-        labor = city.check_queue(labor)
+        if city.get_owner() is active_player:
+            labor = city.check_queue(labor)
     active_player.resources["labor"] = labor
 
     textbox.set_text(f"player: {active_player.name}, labor: {active_player.resources['labor']}, food: {active_player.resources['food']}")
