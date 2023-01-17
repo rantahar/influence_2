@@ -1,12 +1,28 @@
 import itertools
 
+
+
 prices = {
+    "Building Project": {},
     "Road": {"labor": 1},
+    "City": {"labor": 10},
     "Farm": {"labor": 2},
     "Wood Gatherer's Hut": {"labor": 1},
     "Hunter's Camp": {"labor": 2},
     "Mine": {"labor": 5},
 }
+
+production = {
+    "Building Project": {},
+    "Road": {},
+    "Farm": {"food": 1},
+    "Wood Gatherer's Hut": {"labor": 1},
+    "Hunter's Camp": {"food": 1},
+    "Mine": {"labor": 3},
+}
+
+# City production determined by the city class in city.py
+
 
 
 class GamePiece():
@@ -38,7 +54,7 @@ class GamePiece():
 
     @classmethod
     def price(cls):
-        return prices[cls.title]
+        return dict(prices[cls.title])
 
     def get_owner(self):
         return self.tile.owner
@@ -50,7 +66,7 @@ class GamePiece():
         return "unknown"
 
     def production(self):
-        return {}
+        return production[self.title]
 
     def add_influences(self, board):
         pass
@@ -82,10 +98,6 @@ class Project(GamePiece):
         self.work_left = work_left
         self.owner = player
         self.tile.place(self)
-
-    @classmethod
-    def price(cls):
-        return {}
 
     def get_owner(self):
         return self.owner
@@ -175,9 +187,6 @@ class Farm(GamePiece):
     def get_sprite_id(self):
         return "farm"
 
-    def production(self):
-        return {"food": 1}
-
 
 class WoodLodge(GamePiece):
     title = "Wood Gatherer's Hut"
@@ -196,9 +205,6 @@ class WoodLodge(GamePiece):
 
     def get_sprite_id(self):
         return "woodlodge"
-
-    def production(self):
-        return {"labor": 1}
 
 
 class HuntersCamp(GamePiece):
@@ -219,9 +225,6 @@ class HuntersCamp(GamePiece):
     def get_sprite_id(self):
         return "woodlodge"
     
-    def production(self):
-        return {"food": 1}
-        
 
 class Mine(GamePiece):
     title = "Mine"
@@ -241,6 +244,3 @@ class Mine(GamePiece):
     def get_sprite_id(self):
         return "woodlodge"
     
-    def production(self):
-        return {"labor": 1}
-

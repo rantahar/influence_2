@@ -83,10 +83,6 @@ class City(GamePiece):
             return True
         return False
 
-    @classmethod
-    def price(cls):
-        return {"labor": 10}
-
     def get_upgrades(self):
         upgrade = {
             "requires": {},
