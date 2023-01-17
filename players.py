@@ -116,7 +116,7 @@ class AIPlayer(Player):
                 if dist < 3:
                     goodness -= 100000000
                 if dist >= 3:
-                    goodness += 10 - dist
+                    goodness += 50 - dist
             for nb in tile.neighbors:
                 if nb.land_type == "meadow":
                     goodness += 2
