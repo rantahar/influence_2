@@ -2,6 +2,13 @@ import pygame
 import pygame_gui
 import pieces
 
+apple = pygame.image.load('assets/apple_paint.png')
+apple = pygame.transform.scale(apple, (32, 32))
+apple.set_colorkey((0, 0, 0))
+labor = pygame.image.load('assets/labor_paint.png')
+labor = pygame.transform.scale(labor, (32, 32))
+labor.set_colorkey((0, 0, 0))
+
 
 class TileWindow():
     def __init__(self, manager, tile, player):
@@ -26,10 +33,48 @@ class TileWindow():
         for key in pieces.piece_classes:
             cls = pieces.piece_classes[key]
             if cls.can_build_at(player, tile):
-                self.buttons[key] = pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect((10, 60*i + 10), (210, 50)),
+                price = cls.price()
+                panel = pygame_gui.elements.UIPanel(
+                    pygame.Rect((10, 80*i + 10), (210, 70)),
+                    manager=manager,
+                    container=self.window
+                )
+                pygame_gui.elements.UILabel(
+                    relative_rect=pygame.Rect((0, 0), (140, 40)),
                     text=cls.title,
-                    container=self.window,
+                    manager=manager,
+                    container=panel
+                )
+                if "labor" in price.keys():
+                    pygame_gui.elements.UIImage(
+                        relative_rect=pygame.Rect((0, 40), (32, 32)),
+                        image_surface=labor,
+                        manager=manager,
+                        container=panel
+                    )
+                    pygame_gui.elements.UILabel(
+                        relative_rect=pygame.Rect((20, 40), (40,32)),
+                        text=f":{price['labor']}",
+                        manager=manager,
+                        container=panel
+                    )
+                if "food" in price.keys():
+                    pygame_gui.elements.UIImage(
+                        relative_rect=pygame.Rect((60, 40), (32, 32)),
+                        image_surface=apple,
+                        manager=manager,
+                        container=panel
+                    )
+                    pygame_gui.elements.UILabel(
+                        relative_rect=pygame.Rect((80, 40), (40,32)),
+                        text=f":{price['food']}",
+                        manager=manager,
+                        container=panel
+                    )
+                self.buttons[key] = pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect((150, 10), (50, 50)),
+                    text="Buy",
+                    container=panel,
                     manager=manager
                 )
                 i += 1
@@ -41,16 +86,54 @@ class TileWindow():
             manager=manager,
         )
         self.piece = [p for p in tile.pieces if p.show_game_piece_window][0]
-        upgrades = self.piece.get_upgrades()
-        i = 0
         if self.piece.get_owner() is player:
+            upgrades = self.piece.get_upgrades()
+            print(upgrades)
+            i = 0
             for key in upgrades.keys():
                 price = upgrades[key]["price"]
                 if player.can_afford(price) and self.piece.can_upgrade(key):
-                    self.upgrade_buttons[key] = pygame_gui.elements.UIButton(
-                        relative_rect=pygame.Rect((10, 60*i + 10), (210, 50)),
+                    panel = pygame_gui.elements.UIPanel(
+                        pygame.Rect((10, 80*i + 10), (210, 70)),
+                        manager=manager,
+                        container=self.window
+                    )
+                    pygame_gui.elements.UILabel(
+                        relative_rect=pygame.Rect((0, 0), (140, 40)),
                         text=key,
-                        container=self.window,
+                        manager=manager,
+                        container=panel
+                    )
+                    if "labor" in price.keys():
+                        pygame_gui.elements.UIImage(
+                            relative_rect=pygame.Rect((0, 40), (32, 32)),
+                            image_surface=labor,
+                            manager=manager,
+                            container=panel
+                        )
+                        pygame_gui.elements.UILabel(
+                            relative_rect=pygame.Rect((20, 40), (40,32)),
+                            text=f":{price['labor']}",
+                            manager=manager,
+                            container=panel
+                        )
+                    if "food" in price.keys():
+                        pygame_gui.elements.UIImage(
+                            relative_rect=pygame.Rect((60, 40), (32, 32)),
+                            image_surface=apple,
+                            manager=manager,
+                            container=panel
+                        )
+                        pygame_gui.elements.UILabel(
+                            relative_rect=pygame.Rect((80, 40), (40,32)),
+                            text=f":{price['food']}",
+                            manager=manager,
+                            container=panel
+                        )
+                    self.upgrade_buttons[key] = pygame_gui.elements.UIButton(
+                        relative_rect=pygame.Rect((150, 10), (50, 50)),
+                        text="Buy",
+                        container=panel,
                         manager=manager
                     )
                     i += 1
