@@ -88,7 +88,6 @@ class TileWindow():
         self.piece = [p for p in tile.pieces if p.show_game_piece_window][0]
         if self.piece.get_owner() is player:
             upgrades = self.piece.get_upgrades()
-            print(upgrades)
             i = 0
             for key in upgrades.keys():
                 price = upgrades[key]["price"]
