@@ -107,7 +107,7 @@ class City(GamePiece):
             return False
         for r in upgrades[name]["requires"].keys():
             require = upgrades[name]["requires"][r]
-            if r == "level":
+            if r == "city_level":
                 if require > self.level:
                     return False
             elif require not in self.built:
