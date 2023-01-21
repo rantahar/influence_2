@@ -21,6 +21,8 @@ def load_map(filename):
                     land_types_row.append("water")
                 elif type == "m":
                     land_types_row.append("meadow")
+                elif type == "M":
+                    land_types_row.append("mountain")
             land_types.append(land_types_row)
 
     return land_types, players
