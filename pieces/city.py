@@ -56,6 +56,8 @@ class City(GamePiece):
 
     @classmethod
     def can_build_at(cls, player, tile):
+        if tile.land_type != "meadow":
+            return False
         on_road = False
         for piece in tile.pieces:
             if type(piece) is not Road:
@@ -71,6 +73,8 @@ class City(GamePiece):
 
     @classmethod
     def ai_can_build_with_road(cls, player, tile):
+        if tile.land_type != "meadow":
+            return False
         for piece in tile.pieces:
             if type(piece) is not Road:
                 return False

@@ -6,7 +6,7 @@ prices = {
     "Building Project": {},
     "Road": {"labor": 1},
     "City": {"labor": 10},
-    "Farm": {"labor": 2},
+    "Farm": {"labor": 5},
     "Wood Gatherer's Hut": {"labor": 1},
     "Hunter's Camp": {"labor": 2},
     "Fishing Camp": {"labor": 1},
@@ -16,7 +16,7 @@ prices = {
 production = {
     "Building Project": {},
     "Road": {},
-    "Farm": {"food": 1},
+    "Farm": {"food": 2},
     "Wood Gatherer's Hut": {"labor": 1},
     "Hunter's Camp": {"food": 1},
     "Fishing Camp": {"food": 2},
@@ -219,26 +219,7 @@ class HuntersCamp(GamePiece):
     def can_build_at(cls, player, tile):
         if not super().can_build_at(player, tile):
             return False
-        if tile.land_type == "forest":
-            return True
-        return False
-    
-    def get_sprite_id(self):
-        return "woodlodge"
-    
-
-class Mine(GamePiece):
-    title = "Mine"
-
-    def __init__(self, tile, player):
-        super().__init__(tile, player)
-        self.tile.place(self)
-
-    @classmethod
-    def can_build_at(cls, player, tile):
-        if not super().can_build_at(player, tile):
-            return False
-        if tile.land_type == "mountain":
+        if tile.land_type in ["forest", "meadow"]:
             return True
         return False
     
@@ -264,3 +245,21 @@ class FishingCamp(GamePiece):
     def get_sprite_id(self):
         return "woodlodge"
 
+
+class Mine(GamePiece):
+    title = "Mine"
+
+    def __init__(self, tile, player):
+        super().__init__(tile, player)
+        self.tile.place(self)
+
+    @classmethod
+    def can_build_at(cls, player, tile):
+        if not super().can_build_at(player, tile):
+            return False
+        if tile.land_type == "mountain":
+            return True
+        return False
+    
+    def get_sprite_id(self):
+        return "woodlodge"
