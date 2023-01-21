@@ -40,11 +40,13 @@ flag = load_tileset('assets/project_1.png', 256, 256)[0][0]
 grass_sprite = load_tileset('assets/grass_2.png', 340, 320)[0][0]
 forest_sprite = load_tileset('assets/forest_2.png', 340, 320)[0][0]
 mountain_sprite = load_tileset('assets/mountain_1.png', 340, 320)[0][0]
+water_sprite = load_tileset('assets/water_1.png', 340, 320)[0][0]
 
 map_sprites = {
     'forest': forest_sprite,
     'meadow': grass_sprite,
     'mountain': mountain_sprite,
+    'water': water_sprite,
 }
 
 piece_sprites = {

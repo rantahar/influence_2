@@ -3,6 +3,8 @@ import math
 import random
 from sprites import map_sprites, piece_sprites
 import pieces
+import maps
+from players import Player, AIPlayer
 
 
 class Hexagon:
@@ -151,7 +153,7 @@ class TileMap():
 
 
 class Tile:
-    def __init__(self, x, y, board):
+    def __init__(self, x, y, board, land_type):
         self.x = x
         self.y = y
         self.qup = None
@@ -162,6 +164,7 @@ class Tile:
         self.sdn = None
         self.neighbors = None
         self.board = board
+        self.land_type = land_type
 
         self.hexagon = self.board.tileMap.hex_grid[x][y]
 
@@ -170,9 +173,6 @@ class Tile:
         else:
             self.doubled_x = 2*x
 
-        self.land_type = random.choice(
-            ['forest', 'forest', 'meadow', 'meadow', 'mountain']
-        )
 
         self.owner = None
         self.influences = {}
@@ -215,17 +215,18 @@ class Tile:
 
 
 class Board:
-    def __init__(self, rows=10, cols=10, window_width = 800, window_height = 600):
+    def __init__(self, window_width = 800, window_height = 600, map = "default"):
         # Maps and draws hexagons on a lattice
-        self.tileMap = TileMap(rows, cols)
+        land_types, players = maps.load_map(f"assets/maps/{map}.txt")
+        self.rows = len(land_types)
+        self.cols = len(land_types[0])
+
+        self.tileMap = TileMap(self.rows, self.cols)
         self.viewport = self.tileMap.viewport
 
-        self.rows = rows
-        self.cols = cols
-
         self.tiles = [
-            [Tile(x, y, self) for y in range(cols)]
-            for x in range(cols)
+            [Tile(x, y, self, land_types[y][x]) for y in range(self.rows)]
+            for x in range(self.cols)
         ]
 
         self.all_tiles = [tile for row in self.tiles for tile in row]
@@ -234,21 +235,30 @@ class Board:
             for y in range(self.rows):
                 tile = self.tiles[x][y]
                 if y % 2 == 1:
-                    tile.qup = self.tiles[(x+1)%cols][y]
-                    tile.sup = self.tiles[x][(y+1)%rows]
-                    tile.rup = self.tiles[x][(y+rows-1)%rows]
-                    tile.qdn = self.tiles[(x+cols-1)%cols][y]
-                    tile.sdn = self.tiles[(x+1)%cols][(y+rows-1)%rows]
-                    tile.rdn = self.tiles[(x+1)%cols][(y+1)%rows]
+                    tile.qup = self.tiles[(x+1)%self.cols][y]
+                    tile.sup = self.tiles[x][(y+1)%self.rows]
+                    tile.rup = self.tiles[x][(y+self.rows-1)%self.rows]
+                    tile.qdn = self.tiles[(x+self.cols-1)%self.cols][y]
+                    tile.sdn = self.tiles[(x+1)%self.cols][(y+self.rows-1)%self.rows]
+                    tile.rdn = self.tiles[(x+1)%self.cols][(y+1)%self.rows]
                 else:
-                    tile.qup = self.tiles[(x+1)%cols][y]
-                    tile.sup = self.tiles[(x+cols-1)%cols][(y+1)%rows]
-                    tile.rup = self.tiles[(x+cols-1)%cols][(y+rows-1)%rows]
-                    tile.qdn = self.tiles[(x+cols-1)%rows][y]
-                    tile.sdn = self.tiles[x][(y+rows-1)%rows]
-                    tile.rdn = self.tiles[x][(y+1)%rows]
+                    tile.qup = self.tiles[(x+1)%self.cols][y]
+                    tile.sup = self.tiles[(x+self.cols-1)%self.cols][(y+1)%self.rows]
+                    tile.rup = self.tiles[(x+self.cols-1)%self.cols][(y+self.rows-1)%self.rows]
+                    tile.qdn = self.tiles[(x+self.cols-1)%self.cols][y]
+                    tile.sdn = self.tiles[x][(y+self.rows-1)%self.rows]
+                    tile.rdn = self.tiles[x][(y+1)%self.rows]
 
                 tile.neighbors = [tile.qup, tile.sup, tile.rup, tile.qdn, tile.sdn, tile.rdn]
+
+        for player in players:
+            tile = self.tiles[player["x"]][player["y"]]
+            if player["number"] == 1:
+                player = Player()
+            else:
+                player = AIPlayer()
+            tile.owner = player
+            pieces.City(tile, player)
 
     def scroll_right(self, step):
         self.viewport.x -= step

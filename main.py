@@ -14,25 +14,13 @@ window_height = 600
 pygame.init()
 screen = pygame.display.set_mode((window_width, window_height))
 ui_manager = pygame_gui.UIManager((window_width, window_height))
-board = Board(10, 10, window_width, window_height)
+board = Board(window_width, window_height)
 
 textbox = pygame_gui.elements.UITextBox(
     html_text="Hello",
     relative_rect=(-2, -2, window_width+4, 50),
 )
 
-
-tile = board.tiles[2][2]
-player = Player()
-tile.owner = player
-tile.land_type = "meadow"
-city = pieces.City(tile, player)
-
-tile = board.tiles[2][5]
-player = AIPlayer()
-tile.owner = player
-tile.land_type = "meadow"
-city = pieces.City(tile, player)
 
 player_turns = cycle(Player.all)
 active_player = None
@@ -56,10 +44,17 @@ def start_turn():
         if piece.tile.owner is active_player:
             production = piece.production()
             for key in production.keys():
-                if key not in player.resources:
+                if key not in active_player.resources:
                     active_player.resources[key] = production[key]
                 else:
                     active_player.resources[key] += production[key]
+
+    # City management penalty:
+    n_cities = 0
+    for city in pieces.City.all:
+        if city.owner is active_player:
+            active_player.resources["labor"] -= n_cities
+            n_cities += 1
 
     # Progress any ongoing projects
     labor = active_player.resources["labor"]
