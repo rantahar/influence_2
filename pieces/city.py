@@ -161,6 +161,9 @@ class City(GamePiece):
         upgrade_queued = "upgrade" in self._queue.keys()
         food_level = self.level + upgrade_queued
         food_consumption = food_level*(food_level-1)//2
+        for nb in self.tile.neighbors:
+            if nb.land_type == "water":
+                food_consumption -= 1
         return {
             "labor": self.level,
             "food": -food_consumption
@@ -171,7 +174,7 @@ class City(GamePiece):
 
     def add_influences(self, board):
         for tile in board.all_tiles:
-            n = self.level - self.tile.distance_to(tile) + 1
+            n = self.level//5 - self.tile.distance_to(tile) + 2
             if n > 0:
                 tile.influences[self.owner] += n
 
