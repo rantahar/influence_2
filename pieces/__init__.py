@@ -1,6 +1,5 @@
 from .city import City, find_tile_owners
-from .other_pieces import GamePiece, Project, Road, Farm, WoodLodge, HuntersCamp, Mine
-
+from .other_pieces import *
 
 piece_classes = {
     "city": City,
@@ -8,5 +7,6 @@ piece_classes = {
     "farm": Farm,
     "woodlodge": WoodLodge,
     "hunterscamp": HuntersCamp,
+    "finshingcamp": FishingCamp,
     "mine": Mine,
 }

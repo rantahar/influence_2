@@ -9,6 +9,7 @@ prices = {
     "Farm": {"labor": 2},
     "Wood Gatherer's Hut": {"labor": 1},
     "Hunter's Camp": {"labor": 2},
+    "Fishing Camp": {"labor": 1},
     "Mine": {"labor": 5},
 }
 
@@ -18,11 +19,11 @@ production = {
     "Farm": {"food": 1},
     "Wood Gatherer's Hut": {"labor": 1},
     "Hunter's Camp": {"food": 1},
+    "Fishing Camp": {"food": 2},
     "Mine": {"labor": 3},
 }
 
 # City production determined by the city class in city.py
-
 
 
 class GamePiece():
@@ -244,3 +245,22 @@ class Mine(GamePiece):
     def get_sprite_id(self):
         return "woodlodge"
     
+
+class FishingCamp(GamePiece):
+    title = "Fishing Camp"
+
+    def __init__(self, tile, player):
+        super().__init__(tile, player)
+        self.tile.place(self)
+
+    @classmethod
+    def can_build_at(cls, player, tile):
+        if not super().can_build_at(player, tile):
+            return False
+        if tile.land_type == "water":
+            return True
+        return False
+    
+    def get_sprite_id(self):
+        return "woodlodge"
+

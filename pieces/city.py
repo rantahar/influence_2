@@ -159,11 +159,8 @@ class City(GamePiece):
 
     def production(self):
         upgrade_queued = "upgrade" in self._queue.keys()
-        food_level = self.level + upgrade_queued
-        food_consumption = food_level*(food_level-1)//2
-        for nb in self.tile.neighbors:
-            if nb.land_type == "water":
-                food_consumption -= 1
+        population = self.level + upgrade_queued
+        food_consumption = population*(population-1)//2
         return {
             "labor": self.level,
             "food": -food_consumption
